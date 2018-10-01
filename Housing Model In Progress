@@ -158,7 +158,7 @@ to setup
 
 ;; initialise globals (in code, but there are globals in interface to be initialized as well )
   set initialVacancyRate 0.05
-  set nRealtors 3  ;; original is 6, I shrink the size of agents (all kinds)
+  set nRealtors 6  ;; original is 6, I shrink the size of agents (all kinds)
   set maxHomelessPeriod 5
   set interestPerTick InterestRate / ( TicksPerYear * 100 ) ;; meaning clarified in note
   set min-price-fraction 0.1
@@ -203,10 +203,19 @@ to setup
     ]
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-setup = "2 realtors" [
-    inspect min-one-of realtors [who]
-    user-message (word "2 realtors : build realtors with flags, and draw circles as territory ")
-    stop-inspecting min-one-of realtors [who]
+;  if debug? or debug-setup = "2 realtors" [
+;    inspect min-one-of realtors [who]
+;    user-message (word "2 realtors : build realtors with flags, and draw circles as territory ")
+;    stop-inspecting min-one-of realtors [who]
+;  ]
+  
+  if exp-options = "realtor" [
+       
+     ask realtor 0 [ 
+      inspect self 
+      type "this realtor is just created. " print ""
+      user-message (word "")
+    ]
   ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -223,6 +232,10 @@ to setup
     user-message (word "3 houses : build a number of houses. Check which properties are initialized. " )
     stop-inspecting max-one-of houses [who]
   ]
+  
+  
+  
+   
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -236,17 +249,18 @@ to setup
   ask occupied-houses [  ;; define each home-owner's properties
 
     set for-sale? false  ;; since owners living inside, it should not for-sale now
+    
 
     hatch-owners 1 [  ;; create an owner inside this house
 
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-setup = "4 owners" [
-
-        inspect self
-        inspect one-of houses-here ;; here refers to patch underneath
-
-        user-message ( word " 4 owners : it is a bare owner " )
-      ]
+;      if debug? or debug-setup = "4 owners" [
+;
+;        inspect self
+;        inspect one-of houses-here ;; here refers to patch underneath
+;
+;        user-message ( word " 4 owners : it is a bare owner " )
+;      ]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       set color red  ;; make owner red
@@ -273,16 +287,23 @@ to setup
 
 
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-setup = "4 owners" [
-
-          user-message (word "4 owners : build an owner, initialize properties to owner and its house. " )
-
-          stop-inspecting self
-          stop-inspecting one-of houses-here
-        ]
+;      if debug? or debug-setup = "4 owners" [
+;
+;          user-message (word "4 owners : build an owner, initialize properties to owner and its house. " )
+;
+;          stop-inspecting self
+;          stop-inspecting one-of houses-here
+;        ]
+      
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+      
     ]
+    
+    if exp-options = "house" and who = 0 [
+       type " the house is made occupied by created an owner to it : check for-sale, my-owner" print ""
+       user-message (word "" )
+      ]
+    
   ]
 
   set nOriginalOwners count owners
@@ -698,7 +719,7 @@ to go
      if scenario = "ltv"  [ set MaxLoanToValue 60 ]
      if scenario = "raterise 3" [ set InterestRate 3 ]
      if scenario = "raterise 7" [ set InterestRate 7 ]
-     if scenario = "raterise 9" [ set InterestRate 9 ]
+     if scenario = "raterise 10" [ set InterestRate 10 ]
      if scenario = "influx" [ set EntryRate 10 ]
      if scenario = "influx-rev" [ set EntryRate 5 ]
      if scenario = "poorentrants" [ set MeanIncome 24000 ]
@@ -1545,7 +1566,7 @@ to move-house
 
   set made-offer-on nobody ;; under buyer's context, buyer is not making any offer now
 
-  ;; update realtor's history with this sale price
+  ;; create a new record for the new deal, and save it into the house my-realtor sales list 
   hatch-records 1 [  ;; create a new record under the buyer context
 
     hide-turtle  ;; make record invisible
