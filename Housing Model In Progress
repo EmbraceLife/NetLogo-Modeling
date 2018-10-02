@@ -162,12 +162,9 @@ to setup
   set maxHomelessPeriod 5
   set interestPerTick InterestRate / ( TicksPerYear * 100 ) ;; meaning clarified in note
   set min-price-fraction 0.1
-  set nDiscouraged 0
-  set nExit 0
-  set nEntry 0
-  set nForceOut 0
+
   set nOriginalOwners 0
-  set nOwnersOffered 0
+  
 
 ;  no-display  ;; to make setup run faster, avoid display in process (given continous mode rather than tick mode)
 
@@ -208,11 +205,11 @@ to setup
 ;    user-message (word "2 realtors : build realtors with flags, and draw circles as territory ")
 ;    stop-inspecting min-one-of realtors [who]
 ;  ]
-  
+
   if exp-options = "realtor" [
-       
-     ask realtor 0 [ 
-      inspect self 
+
+     ask realtor 0 [
+      inspect self
       type "this realtor is just created. " print ""
       user-message (word "")
     ]
@@ -232,10 +229,10 @@ to setup
     user-message (word "3 houses : build a number of houses. Check which properties are initialized. " )
     stop-inspecting max-one-of houses [who]
   ]
-  
-  
-  
-   
+
+
+
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -249,7 +246,7 @@ to setup
   ask occupied-houses [  ;; define each home-owner's properties
 
     set for-sale? false  ;; since owners living inside, it should not for-sale now
-    
+
 
     hatch-owners 1 [  ;; create an owner inside this house
 
@@ -294,16 +291,16 @@ to setup
 ;          stop-inspecting self
 ;          stop-inspecting one-of houses-here
 ;        ]
-      
+
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      
+
     ]
-    
+
     if exp-options = "house" and who = 0 [
        type " the house is made occupied by created an owner to it : check for-sale, my-owner" print ""
        user-message (word "" )
       ]
-    
+
   ]
 
   set nOriginalOwners count owners
@@ -397,7 +394,7 @@ to setup
 ;; 10 records;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; create records for each and every house
 ;; at the start, every house is assumed to be sold previously and has a record
-;; the house's sale-price is the record's selling-price, 
+;; the house's sale-price is the record's selling-price,
 ;; my-realtor is set randomly at the start, and this realtor will store the record into its sales list
 
   ask houses [ ;; loop each house
@@ -436,7 +433,7 @@ to setup
     ]
   ]
 
-   ;; to experiment for verification 
+   ;; to experiment for verification
    experiments
 
    paint-houses
@@ -679,7 +676,7 @@ end
 
 
   ;; experiment for verification ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-to experiments 
+to experiments
   if exp-options = "track-owner-numbers" [
     type "nOriginalOwners: " type nOriginalOwners type " owner without house: " type count owners with [not is-house? my-house ]
     type " nOwnersOffered: " type nOwnersOffered  ;; each tick how many owners can afford a targeted house to buy
@@ -687,11 +684,11 @@ to experiments
     type " entry: " type nEntry type " nDiscouraged: " type nDiscouraged type " nForceOut: " type nForceOut
     type " nOriginal - nDiscouraged - nForceout: " type nOriginalOwners - nDiscouraged - nForceout print ""
   ]
-  
+
   if exp-options = "track-houses-sales-numbers" [
      let sum-sales 0 ask realtors [ set sum-sales sum-sales + length sales] show sum-sales
      let sum-houses 0 ask realtors [ set sum-houses sum-houses + count my-houses] show sum-houses
-     type "total houses: " type count houses type ", total sales: " type sum-sales type ", total houses under 3 realtors (include duplicated) : " type sum-houses print "" 
+     type "total houses: " type count houses type ", total sales: " type sum-sales type ", total houses under 3 realtors (include duplicated) : " type sum-houses print ""
   ]
 
 end
@@ -703,6 +700,12 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to go
 
+  set nDiscouraged 0
+  set nExit 0
+  set nEntry 0
+  set nForceOut 0
+  set nOwnersOffered 0
+  
    if debug? or debug-go = "s0 go-structure" [
      user-message (word "s0 go-structure : set simulation duration, half time bring in a scenario, one step per go, 3 conditions to stop simulation. Now let's run! ")
 
@@ -737,10 +740,10 @@ to go
   do-plots  ;; update the plots
 
 
-  ;; experiment for verification 
-  experiments 
-  
-  
+  ;; experiment for verification
+  experiments
+
+
   tick  ;; advance the clock
 
 
@@ -1468,8 +1471,8 @@ end
 ;; whether buy-sell flow is intact or not ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report follow-chain [ first-link ]    ;;  first-link is an owner too
-  
-  ;; two ways to be intact : 1. a house on-sale without a seller (buy a total new house or house without owner) 
+
+  ;; two ways to be intact : 1. a house on-sale without a seller (buy a total new house or house without owner)
   ;; 2. the buyer of house A is the owner of house B which is made an offer by seller (switch houses with the other person )
 
 ;  inspect self inspect first-link
@@ -1566,7 +1569,7 @@ to move-house
 
   set made-offer-on nobody ;; under buyer's context, buyer is not making any offer now
 
-  ;; create a new record for the new deal, and save it into the house my-realtor sales list 
+  ;; create a new record for the new deal, and save it into the house my-realtor sales list
   hatch-records 1 [  ;; create a new record under the buyer context
 
     hide-turtle  ;; make record invisible
@@ -1652,71 +1655,110 @@ end
 to do-plots
 ;; draw a range of plots
 
+  ;; plot income mean and median ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   set-current-plot "income averages"
   set-current-plot-pen "mean"
   plot mean [income] of owners with [ any? owners and income > 0] / 10000
   set-current-plot-pen "median"
   plot median [income] of owners with [any? owners and income > 0] / 10000
 
-;  set-current-plot "owners, buyers, negative"
-;  set-current-plot-pen "owners"
-;  plot count owners with [any? owners and income > 0 ]
-;  set-current-plot-pen "buyers"
-;  plot count owners with [any? owners and made-offer-on != nobody ]
-;  set-current-plot-pen "negative"
-;  plot count owners with [any? owners and income < 0 ]
 
-  let houses-for-sale houses with [ for-sale?  and sale-price > 0 ]
-  let houses-sold records  ;; make all records under temporary variable
 
-  set-current-plot "Homes"  ;; "Homes" must be defined in the interface ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-  set-current-plot-pen "All houses"  ;; pen and its color must be defined inside interface
+  ;; plot : ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; count of total houses, empty houses, owners look for houses, houses with mortgage > sale-price
+  set-current-plot "count houses owners"  ;; "Homes" must be defined in the interface 
+  set-current-plot-pen "houses"  ;; pen and its color must be defined inside interface
   plot count houses  ;; count all houses
+  set-current-plot-pen "population"  ;; pen and its color must be defined inside interface
+  plot count owners  ;; count all houses
+  set-current-plot-pen "homeowners"  ;; pen and its color must be defined inside interface
+  plot count owners with [ is-house? my-house ]  ;; count all houses
 
-  set-current-plot-pen "Seeking a home"
-  plot count owners with [ not is-house? my-house ]  ;; plot the sum of owners who have no house
+  set-current-plot "People In-Out House Demolished" 
+  set-current-plot-pen "nExit"  ;; fixed proportion of owners die or exit the city every tick
+  plot nExit
+  set-current-plot-pen "nEntry" ;; fixed proportion of newcomer enter the city every tick
+  plot nEntry
+  set-current-plot-pen "nDemolished" ;;  the number of houses demolished due to too old or price too low
+  plot nDemolished  
+  
+  set-current-plot "People-discouraged-forced HousePrice-too-low" 
+  set-current-plot-pen "nDiscouraged" ;; the number of owners discouraged to leave after being homeless too long
+  plot nDiscouraged
+  set-current-plot-pen "nForceOut"  ;; the number of owners can't afford repayment
+  plot nForceOut
+  set-current-plot-pen "nPrice<Mortgage"  ;; the number of houses whose sale-price is less than its owner's mortgage
+  plot count houses with [ is-owner? my-owner and (sale-price  < [mortgage] of my-owner) ]  
 
-  set-current-plot-pen "Empty houses"
-  plot count houses with [ not is-owner? my-owner ]  ;; plot the sum of houses without owners
+  set-current-plot "homeless, affordHouse, emptyHouse" 
+  set-current-plot-pen "homeless" ;; the number of owners who have no house 
+  plot count owners with [ not is-house? my-house ]  
+  set-current-plot-pen "affordHouse"  ;; the number of owners who can afford a new house
+  plot nOwnersOffered
+  set-current-plot-pen "emptyHouse" ;; the number houses without owners
+  plot count houses with [ not is-owner? my-owner ]  
 
-  set-current-plot-pen "In -ve equity"
-  plot count houses with [ is-owner? my-owner and (sale-price  < [mortgage] of my-owner) ]  ;; plot the sum of houses whose saleprice is less than its owner's mortgage
+  set-current-plot "trade house up or down" 
+  set-current-plot-pen "up"
+  plot nUpShocked  ;; pot to track the number of owners who put their houses for sale due to rise of income
+  set-current-plot-pen "down"
+  plot nDownShocked   ;; pot to track the number of owners who put their houses for sale due to drop of income
 
-  set-current-plot-pen "Demolished"
-  plot nDemolished  ;; plot the number of houses demolished
-
-  set-current-plot "People"  ;; go to another plot graph named "People" ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  set-current-plot-pen "Population"
-  plot count owners  ;; plot to track the change of total sum of owners
-
-  set-current-plot-pen "10 x Moving up"
-  plot 10 * nUpShocked  ;; pot to track the number of owners who put their houses for sale due to rise of income
-
-  set-current-plot-pen "10 x Moving down"
-  plot 10 * nDownShocked   ;; pot to track the number of owners who put their houses for sale due to drop of income
-
+  
+  
+  let houses-for-sale houses with [ for-sale?  and sale-price > 0 ]
+  
   if any? houses-for-sale [  ;; if there are houses ready for sales
-    set-current-plot "House price distribution"  ;; go to such plot ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    set-plot-pen-interval 1000 ;; every time plot with 1000 units as distance
+    
+    set-current-plot "house for-sale distribution"  ;; 
+    set-plot-pen-interval 10000 ;; every time plot with 1000 units as distance
     set-plot-x-range 0 1000000  ;; set x range from 0 to 1000000
-    set-current-plot-pen "For sale"  ;; choose the pen named "For sale"
+    set-current-plot-pen "for-sale"  ;; choose the pen named "For sale"
     histogram [ sale-price ] of houses-for-sale  ;; do histogram on sale-prices of all houses for sale
 
-    set-current-plot-pen "All"
+    
+    set-current-plot "all house price distribution"  ;; 
+    set-plot-pen-interval 10000 ;; every time plot with 1000 units as distance
+    set-plot-x-range 0 1000000  ;; set x range from 0 to 1000000
+    set-current-plot-pen "all"
     histogram [ sale-price ] of houses  ;; histogram of all houses
 
-    set-current-plot-pen "New sales"
+    set-current-plot "new sale-price distribution"  ;; 
+    set-plot-pen-interval 10000 ;; every time plot with 1000 units as distance
+    set-plot-x-range 0 1000000  ;; set x range from 0 to 1000000
+    set-current-plot-pen "new-sales"
     histogram [ sale-price ] of houses-for-sale with [ date-for-sale = ticks ] ;; histogram of prices of houses currently enter markets
     ]
 
   if any? owners [
-     set-current-plot "Income distribution"  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     set-current-plot "Income distribution for all"  
      set-plot-pen-interval 30000
      set-plot-x-range 1000 ifelse-value (max [income] of owners > 1E+5) [ 1E+6 ] [ 1E+5 ]
+    set-current-plot-pen "all"
      histogram [ income ] of owners   ;; histogram of all owerns income
-    ]
+    
+     set-current-plot "Income distribution for discouraged"  
+     set-plot-pen-interval 30000
+     set-plot-x-range 1000 ifelse-value (max [income] of owners > 1E+5) [ 1E+6 ] [ 1E+5 ]
+     set-current-plot-pen "discouraged"
+     histogram [ income ] of owners with [ homeless >= maxHomelessPeriod - 1 ] 
+    
+    set-current-plot "Income distribution for forced-out"  
+     set-plot-pen-interval 30000
+     set-plot-x-range 1000 ifelse-value (max [income] of owners > 1E+5) [ 1E+6 ] [ 1E+5 ]
+     set-current-plot-pen "forced-out"
+     histogram [ income ] of owners with [ is-house? my-house and [for-sale?] of my-house and repayment * TicksPerYear > income ] 
+    
+    set-current-plot "Income distribution for house price < mortgage"  
+     set-plot-pen-interval 30000
+     set-plot-x-range 1000 ifelse-value (max [income] of owners > 1E+5) [ 1E+6 ] [ 1E+5 ]
+    set-current-plot-pen "price<mortgage"
+    histogram [ income ] of owners with [ is-house? my-house and  [sale-price] of my-house  < mortgage ]  
+    
+  ]
+  
+  
+  let houses-sold records  ;; make all records under temporary variable
 
   set-current-plot "Median house prices"  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ifelse any? houses-for-sale [
