@@ -41,6 +41,11 @@
 > Simulating complex patterns of housing market 
 >
 > - to replicate real world housing market key features 
+> - baseline parameter settings 
+>   - interest rate : 7%
+>   - median income : 30000
+>   - maxLoanValue : 100%
+>   - newHouseConstructionRate : 0.33%
 > - phenomena 1 : sticky downward 
 >
 >   - demand increase, price rise in short term, price stable and fall as more houses are into the market 
@@ -48,6 +53,11 @@
 >   - we can use this phenomena to **verify** our model and it seems our model can simulate such pattern see verification video [CN](https://youtu.be/srThVXLdxU0?list=PLx08F1efFq_WYCEUW9hDv_kfH3LmJs3TL) and [EN](https://youtu.be/n1NY5Flx9o8?list=PLx08F1efFq_XPiMl74IHpppb8NGqITLn2) 
 > - phenomena 2 : interest rise cause house price to fall 
 >   - see verficiation video [CN](https://www.bilibili.com/video/av31860025/?p=41) and [EN](https://youtu.be/HebhzFXYqkw?list=PLx08F1efFq_XPiMl74IHpppb8NGqITLn2)  
+> - phenomena 3 : if the newcomers have an income 20 per cent less than the incumbents, £24,000 compared with £30,000, the me- dian house price drops by about the same ratio
+>   - see verification video CN and EN (small variations between different runs, but largely the same)
+> - phenomena 4: The upper line shows the effect of a change in interest rate from 7% to 10% with a loan-to-value ratio of 100%. As expected, the rate change induces a sharp drop in prices. However, if we now alter the maximum loan to value ratio to 80%, the effect of an interest rate change from 7% to 10% is modest.
+>   - see verification video CN and EN (small variations between different runs, but largely the same)
+> - other interesting conclusions: ==to be continued== 
 >
 > Model on locality 
 >
@@ -107,8 +117,40 @@
 > - create records of houses are just sold (at the start and at every tick)
 > - if the record house is sold again, a new record will be created, the old record should be removed at some point? 
 > - if the record house is demolished, the record should be removed as well at some point ? 
+
+# Plot display
+
+> plot houses
 >
+> - The total number of houses, 
+> - the number that are empty, 
+> - and the number that are being demolished at each time step
 >
+> plot households
+>
+> - The number of people without a house who are seeking one 
+> - and the number in a house, but with negative equity
+> - The total number of people in the town
+> - and the numbers who are moving because the ratio of their mortgage repayments to their income is greater than twice or less than half the Affordability ratio
+>
+> plot prices
+>
+> - Median house prices and median incomes (and the ratio between the two)
+> - Measures of income and house price inequality (Gini coefficients)
+>
+> plot transactions 
+>
+> - Transaction volumes
+> - The median time that a house for sale is on the market before it is sold or withdrawn from sale.
+>
+> plot histograms
+>
+> - the distribution of incomes and house price
+> - the distribution of capital accumulated by owners selling houses
+>
+> ==median vs mean plot== ?
+>
+> comment to be added ?
 
 # Coding Tasks
 

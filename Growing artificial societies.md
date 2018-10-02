@@ -22,6 +22,12 @@
 
 > Agents are the "people" of anifidal societies. Each agent has internal states and behavioral rules. Some states are fixed for the agent's life, while others change through interaction with other agents or with the external environment. 
 
-Environment
+## Environment
 
+>the "environment" is a medium separate from the agents, on which the agents operate and with which they interact.
+
+## Rule
+
+> There are rules of behavior for the agents and for sites of the environment. Rules couples agents and sites of environment together, having them interact with each other. 
 >
+> There are agent-environment rules, environment-environment rules, agent-agent rules. 
