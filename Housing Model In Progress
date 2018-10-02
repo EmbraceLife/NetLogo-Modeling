@@ -96,7 +96,8 @@ globals [
   nForceOut           ;; number of owners whose repayment is greater than income and force to leave
   nOriginalOwners     ;; original number of owners at beginning
   nOwnersOffered      ;; number of owners who made an offer on a house (have enough money and have target to buy)
-  ]
+  meanIncomeForceOut  ;; cal the mean income of all owners who are forced out due to low income to repay mortgage
+]
 
 breed [houses house ]      ; a house, may be occupied and may be for sale
 breed [owners owner ]      ; a household, may be living in a house, or may be seeking one
@@ -705,6 +706,7 @@ to go
   set nEntry 0
   set nForceOut 0
   set nOwnersOffered 0
+  set meanIncomeForceOut 0 ;; get mean income of owners who are forced out
   
    if debug? or debug-go = "s0 go-structure" [
      user-message (word "s0 go-structure : set simulation duration, half time bring in a scenario, one step per go, 3 conditions to stop simulation. Now let's run! ")
@@ -986,10 +988,14 @@ to step
   ;; get all home-owners whose houses are on-sale and whose yearly-repayment is larger than income, and count the number `total-drop-sale`
 
 
-  ask owner-occupiers with [ [for-sale?] of my-house and ;; get all home-owners whose houses are on-sale and
+  let ForceOut owner-occupiers with [ [for-sale?] of my-house and ;; get all home-owners whose houses are on-sale and
 
-                              repayment * TicksPerYear > income ] [  ;; whose yearly-repayment is larger than income
+                              repayment * TicksPerYear > income ]   ;; whose yearly-repayment is larger than income
 
+  set nForceOut count ForceOut  ;; count the number of owners have forced out of city
+  
+;   meanIncomeForceOut  ;; get their mean income 
+  ask ForceOut [  ;; ask each of the forced out people 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     if debug? or debug-go = "s11 drop-sale" [
         user-message (word "s11 drop-sale : this owner's yearly repayment = " (repayment * 4 )
@@ -1001,10 +1007,11 @@ to step
 
     ask my-house [ set my-owner nobody ]  ;; ask its house to set owner to be nobody
 
-    set nForceOut nForceOut + 1
+    set meanIncomeForceOut meanIncomeForceOut + income  ;; to sum up all income of the owners who are forced out 
     die  ;; ask the owner to die
-
     ]
+    ifelse  nForceOut > 0 [ set meanIncomeForceOut meanIncomeForceOut / nForceOut ] [ set meanIncomeForceOut 0]  ;; take the mean  
+;    if meanIncomeForceOut > 0 [user-message( word " meanIncomeForceOut " meanIncomeForceOut ) ]
 
 
   ;; some new houses are built, and put up for sale ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1108,6 +1115,9 @@ to step
         user-message (word "s15 realtor-average-price : update realtor's average-price. " )]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+      
+      
+      
       let my-houses-for-sale houses-for-sale with [ member? myself local-realtors ];; get all houses under this realtor
 
       if any? my-houses-for-sale [ set average-price median [ sale-price ] of my-houses-for-sale ]
@@ -1743,11 +1753,14 @@ to do-plots
      set-current-plot-pen "discouraged"
      histogram [ income ] of owners with [ homeless >= maxHomelessPeriod - 1 ] 
     
-    set-current-plot "Income distribution for forced-out"  
-     set-plot-pen-interval 30000
-     set-plot-x-range 1000 ifelse-value (max [income] of owners > 1E+5) [ 1E+6 ] [ 1E+5 ]
-     set-current-plot-pen "forced-out"
-     histogram [ income ] of owners with [ is-house? my-house and [for-sale?] of my-house and repayment * TicksPerYear > income ] 
+;    set-current-plot "Income distribution for forced-out"  
+;     set-plot-pen-interval 30000
+;     set-plot-x-range 1000 ifelse-value (max [income] of owners > 1E+5) [ 1E+6 ] [ 1E+5 ]
+;     set-current-plot-pen "forced-out"
+;     histogram [ income ] of owners with [ is-house? my-house and [for-sale?] of my-house and repayment * TicksPerYear > income ]
+     set-current-plot "mean income of forced-out with 0-2 owners"  
+     set-current-plot-pen "forced-out" 
+     plot meanIncomeForceOut
     
     set-current-plot "Income distribution for house price < mortgage"  
      set-plot-pen-interval 30000
@@ -1757,10 +1770,8 @@ to do-plots
     
   ]
   
-  
-  let houses-sold records  ;; make all records under temporary variable
 
-  set-current-plot "Median house prices"  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  set-current-plot "median sale vs sold price"  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ifelse any? houses-for-sale [
     set-current-plot-pen "For sale"
     plot medianPriceOfHousesForSale  ;; plot medianPrice of houses for sale
@@ -1769,36 +1780,47 @@ to do-plots
 
   set-current-plot-pen "Sold"
   let medianSellingPriceOfHouses 0
+  let houses-sold records  ;; make all records under temporary variable
   if any? houses-sold [ set medianSellingPriceOfHouses median [ selling-price ] of houses-sold ]
   plot medianSellingPriceOfHouses  ;; plot the median sold prices for all houses-sold
 
 
-  set-current-plot "Gini index"  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  
+  
+  ;; plot gini index on sold prices and owner incomes ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  set-current-plot "Gini index"  
   set-current-plot-pen "Prices"
   if any? houses-sold [ plot gini-index [ selling-price ] of houses-sold ]  ;; plot gini-index on selling price of houses sold
   set-current-plot-pen "Incomes"
   if any? owners [ plot gini-index [ income ] of owners ]  ;; plot gini-index on owners income
 
+  
+  ;; plot owner's repayment / income ratio ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   if any? owners [
     set-current-plot "Mortgage repayment / income"
 ;    if count owners with [ repayment > 0 ] = 0 [ user-message (word "how many owners left ? " count owners )] ;; debug when owners number shrink down to 0
     plot mean [ TicksPerYear * repayment / income ] of owners with [ repayment > 0 ]
     ]
 
+  ;; plot median sold prices and median owner income ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   if any? houses-sold and any? owners[
-    set-current-plot "Median house price / Median income"  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    set-current-plot "Median house price / Median income" 
     plot medianSellingPriceOfHouses / median [ income ] of owners
     ]
 
+  ;; plot the median duration of all houses on-sale ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   if any? houses-for-sale [
-    set-current-plot "Median time on market"  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    set-current-plot "Median time on market"  
     plot median [ ticks - date-for-sale ] of houses-for-sale
     ]
 
-  set-current-plot "Transactions"   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;; plot each tick how many houses deals made or moved ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  set-current-plot "Transactions"   
   plot moves
 
-  set-current-plot "Rates"  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  
+  ;; plot interest rate and inflation rate ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  set-current-plot "Rates"  
 
   set-current-plot-pen "Interest Rate"
   plot interestPerTick * TicksPerYear * 100
@@ -1806,9 +1828,11 @@ to do-plots
   set-current-plot-pen "Inflation Rate"
   plot Inflation
 
+  
+  ;; plot capital distribution of all owners ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   if any? owners [
-     set-current-plot "Capital"  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     set-plot-pen-interval 1000
+     set-current-plot "Capital distribution of all people"  
+     set-plot-pen-interval 5000
      set-plot-x-range 0 100000
      histogram [ capital ] of owners
      ]
