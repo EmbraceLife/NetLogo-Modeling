@@ -1785,8 +1785,9 @@ to do-plots
      set-plot-pen-interval 30000
      set-plot-x-range 1000 ifelse-value (max [income] of owners > 1E+5) [ 1E+6 ] [ 1E+5 ]
     set-current-plot-pen "all"
-     histogram [ income ] of owners   ;; histogram of all owerns income
+     histogram [ income ] of owners   ;; histogram of all owners' income
 
+    ;; income distribution for those households who are ready to leave city due to being homeless too long
      set-current-plot "Income distribution for discouraged" ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      set-plot-pen-interval 30000
      set-plot-x-range 1000 ifelse-value (max [income] of owners > 1E+5) [ 1E+6 ] [ 1E+5 ]
@@ -1800,8 +1801,9 @@ to do-plots
 ;     histogram [ income ] of owners with [ is-house? my-house and [for-sale?] of my-house and repayment * TicksPerYear > income ]
      set-current-plot "mean income of forced-out with 0-2 owners"  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      set-current-plot-pen "forced-out"
-     plot meanIncomeForceOut
+     plot meanIncomeForceOut  ;; plot the mean income of households who are forced to move out
 
+    ;; Income distribution for those whose house price is less than mortgage
     set-current-plot "Income distribution for house price < mortgage" ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      set-plot-pen-interval 30000
      set-plot-x-range 1000 ifelse-value (max [income] of owners > 1E+5) [ 1E+6 ] [ 1E+5 ]
@@ -1854,7 +1856,7 @@ to do-plots
     plot median [ ticks - date-for-sale ] of houses-for-sale
     ]
 
- ;; plot each tick how many houses deals made or moved ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;; plot each tick how many houses deals made or houses sold/bought ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   set-current-plot "Transactions"
   plot moves
 
@@ -1977,7 +1979,7 @@ InterestRate
 InterestRate
 0
 20
-7.0
+3.0
 0.1
 1
 % pa
@@ -2725,7 +2727,7 @@ CHOOSER
 scenario
 scenario
 "base-line" "raterise 3" "raterise 7" "raterise 10" "influx" "influx-rev" "poorentrants" "ltv"
-0
+4
 
 PLOT
 1666

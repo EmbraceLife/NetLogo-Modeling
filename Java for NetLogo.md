@@ -1,9 +1,9 @@
 # Java with BlueJ 
 ## Objectives
 
-> to read and understand this repo
+> to read and understand [this repo](https://github.com/EconomicSL/housing-model) 
 >
-> to read and understand NetLogo source code 
+> to read and understand NetLogo source code (not necessary now)
 >
 > - make small adjustment to source code to [suit personal preference](https://stackoverflow.com/questions/52586224/how-to-adjust-netlogo-source-code-to-fold-view-window-of-monitor-window-when-run)  
 

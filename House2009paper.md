@@ -164,7 +164,7 @@ follow a realtor's life story
 
 # Code Problems 
 
-## Drop owner numbers
+## problem 1: Decreasing owner numbers
 
 ### Problem Description
 
@@ -191,3 +191,7 @@ follow a realtor's life story
 > Inspection on the entire system is difficult, as it is too complex and interactive. 
 >
 > ==Inspect thoroughly each part during code construction== 
+
+## Problem 2 : can the same house has two records in a realtor?
+
+> list, loops are required 
