@@ -56,6 +56,9 @@ to setup  ;; setup the world
 
   reset-ticks  ;; put clock back to 0
 
+;  import-world "ant.csv"  ;; bring a saved world into setup to continue iterating
+
+
 end
 
 
@@ -92,6 +95,8 @@ to go  ;; make iterations
 
   ;; if food is gone, if pherome is gone, and if stop-switch = true, then track the finish-time and put off stop-switch
   if sum [ food ] of patches = 0 and sum [ pheromone ] of patches = 0 and auto-stop?  [
+
+;      export-world "ant.csv" ;; to save the world agents data
 
       set finish-time ticks
 
