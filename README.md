@@ -7,3 +7,7 @@ earlier versions can be found [here](https://github.com/EmbraceLife/shendusuipia
 - both paper and original model can be found [here](http://cress.soc.surrey.ac.uk/housingmarket/ukhm.html)
 - NetLogo can be downloaded [here](http://ccl.northwestern.edu/netlogo/)
 
+## A simpler version of Housing Market Model 
+- the original model is can be downloaded [here](http://modelingcommons.org/browse/one_model/3857#model_tabs_browse_info)
+- though simpler than Housing market model 2009, but it has touched on housing investment. 
+- I am [updating]() this model at the moment 
