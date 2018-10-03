@@ -49,5 +49,16 @@
 > - `ask patch (-0.8 * max-pxcor) (0.8 * max-pycor)`
 > - `if sum [ food ] of patches = 0 and sum [ pheromone ] of patches = 0 and auto-stop?  [ set finish-time ticks set auto-stop? false ] `
 > - `diffuse pheromone (diffusion-rate / 100) `  
+>
+> ### Save and restore world state
+>
+> - `export-world "ant.csv"`  at a particular moment during `go`  
+> - `import-world "ant.csv"` at the end of `setup` to resume at a specific iteration saved in the file. 
+>
+> ### Debugging and Experiment
+>
+> - ` if condition   [ inspect agent   user-message (word "")  stop-inspecting agent ]`
+> - use `type "words " type variable-value print ""` is the best way to output info to console
+> - use `exp-options` to design different info to output to console 
 
 ## Simple Economy Model 

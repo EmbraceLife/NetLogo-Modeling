@@ -158,3 +158,15 @@
 >
 > - how to do for loop
 > - how to use multiple classes in a new class
+> - how to further inspect into other classes and objects
+> - test the new created function thoroughly
+
+Comparing alternative for iteration in Java
+
+> [video](https://youtu.be/dcK1pxon7zM?list=PLYPWr4ErjcnzWB95MVvlKArO6PIfv1fHd)
+>
+> [music-organizer-v1](../../../BlueJ 4.1.3/BlueJ projects/chapter04/music-organizer-v1) 
+>
+> Features 
+>
+> - 
