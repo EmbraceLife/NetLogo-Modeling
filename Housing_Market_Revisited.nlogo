@@ -5,6 +5,8 @@
 ;; originally written by Anamaria Berea, Hoda Osman, Matt McMahon
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+extensions [palette]
+
 globals
 [
 housingDemand  ;; demand for houses
@@ -84,7 +86,7 @@ to setup
     set initial-density 93.4      ;; 93.4% land have houses
     set rental-density 20         ;; 20% houses are for rental
     set percent-occupied 44       ;; 44% of houses are occupied by people
-    set mobility 76               ;; provide a random number for timeInHouse
+    set mobility 84               ;; provide a random number for timeInHouse
     set min-price 75              ;; minimum house price
     set max-price 150             ;; maximum house price
     set max-income 100            ;; maximum household income
@@ -93,13 +95,13 @@ to setup
     set rental-fraction 0.025     ;; rental price = price * rental-fraction
   ]
 
-  setup-houses         ;; setup for houses
+  setup-houses         ;; setup for houses (all houses now need a mortgage)
 
-  setup-people         ;; setup for people
+  setup-people         ;; setup for people (nothing to do with updateMortgage)
 
-  setup-banks          ;; setup for banks
+  setup-banks          ;; setup for banks  (nothing to do with updateMortgage)
 
-  setup-mortgages      ;; setup for mortgages
+  setup-mortgages      ;; setup for mortgages (all houses get a mortgage)
 
   setup-average-house-price-plot  ;; setup the plotting for average house price
 
@@ -116,11 +118,15 @@ to go
    update-available-capital             ;; update available capital
 
    update-people                        ;; update people
-   buy-investment-houses
-   update-available-capital
-   ;update-people
-   update-mortgages
-   sell-investment-houses
+
+   buy-investment-houses                ;; with excess capital to buy a new house to let
+
+   update-available-capital             ;; update capital again
+
+   update-mortgages                     ;; mortgage update
+
+   sell-investment-houses               ;;
+
    tick
 
    update-average-house-price-plot
@@ -128,11 +134,7 @@ to go
    update-ownership-plot
    update-mortgageHousePrice-plot
 
-
-   ;ask links [set hidden? not show-links]
-   ;print [investmentCapital] of people
-
-    update-average-location
+   update-average-location
    ;update-housing-stats
    compute-bank-balances
    update-interest-rate-plot
@@ -141,490 +143,587 @@ to go
 end
 
 
-; procedures
+
 to update-housing-price-info
 
     let tmpList []
-    ask people
+
+    ask people                                                  ;; ask each person
     [
-      let tmpCount length myHouses
-      set tmpList fput tmpCount tmpList
+      let tmpCount length myHouses                              ;; count how many houses the person rent or own
+
+      set tmpList fput tmpCount tmpList                         ;; put the count-number `tmpCount` into the list `tmpList`
     ]
 
-    let multiplier 1 + 3 * (mean tmpList - housingDemand) / 10  ;; multiplier for delicate outcome
+    let multiplier 1 + 3 * (mean tmpList - housingDemand) / 10  ;; multiplier ??? : mean tmpList = average house a person occupies
 
-    set housingDemand mean tmpList
-    print word "housing multipler" multiplier
+    set housingDemand mean tmpList                              ;; set housingDemand to be the average house a person occupies
+
+;    print word "housing multipler" multiplier                  ;; plot multiplier later
 
 
-  ask houses
+  ask houses                                                    ;; ask each house
   [
-    if random 100 < 5
+    if random 100 < 5                                           ;; for 5 % of time
     [
       ;if is-occupied = 0 ; todo: do this but make the adjustment only for un-owned houses.
       ;[
-        set mortgageCost 0.01 +  price * interest-rate / 60
-        set rent  price * rental-fraction
+        set mortgageCost 0.01 +  price * interest-rate / 60     ;; update mortgageCost for the house, by reducing the cost a little, previously /50, not /60
+
+        set rent  price * rental-fraction                       ;; rent stays the same
       ;]
     ]
 
-    if random 100 < 20
+    if random 100 < 20                                          ;; for 20 % of time
     [
-        ;print word "1 " price
-        set price (price * multiplier * multiplier * multiplier)
-        ;print word "2 " price
+
+        set price (price * multiplier * multiplier * multiplier)  ;; update its price by triple multiplier
+
     ]
 
-  ifelse is-rental = 1
+  ifelse is-rental = 1                                           ;; if this house is for rental, make it red scale by price
     [
-      set color rgb (55 + (200 * (price - min-price) / (max-price - min-price))) 0 0
+      set color rgb (100 + (155 * (price - min-price) / (max-price - min-price))) 0 0
     ]
-    [
-      set color rgb 0 0 (55 + (200 * (price - min-price) / (max-price - min-price)))
+    [                                                            ;; if this house is bought, make it green scale by price
+      set color rgb 0 (100 + (155 * (price - min-price) / (max-price - min-price))) 0
     ]
+    set color lput 120 color                                 ;; add transparency to houses, current 120 is the best value for display
 
-  ifelse missedPaymentCount > 3
+
+
+  ifelse missedPaymentCount > 3                                  ;; if miss payment is more than 3 times, make it bigger and pink
      [
          set size 2.0
          set color pink
+         set color extract-rgb color
+         set color lput 135 color                                 ;; add transparency to houses, current 120 is the best value for display
 
      ]
-     [
+     [                                                           ;; if missedPaymentCount <= 3, put the house color and size back to normal
         ifelse is-rental = 1
        [
-         set color rgb (55 + (200 * (price - min-price) / (max-price - min-price))) 0 0
+          set color rgb (100 + (155 * (price - min-price) / (max-price - min-price))) 0 0
        ]
        [
-         set color rgb 0 0 (55 + (200 * (price - min-price) / (max-price - min-price)))
+          set color rgb 0 (100 + (155 * (price - min-price) / (max-price - min-price))) 0
        ]
         set size 1.0
+        set color lput 120 color                                 ;; add transparency to houses, current 120 is the best value for display
      ]
+
+
   ]
 end
 
 to sell-investment-houses
- ;ask people whose investment capital is negative to sell a house
- ask people with [investmentCapital < 0 and length myHouses > 1]
- [
-   if random 100 < 50
-   [
-     ;sell a house
-     ;print "Selling a house"
-     let tmpHouses but-first myHouses
-     let listToSell houses with [member? self tmpHouses]   ; find houses that are in the person's list
-     ;print listToSell
-     ;print count houses with [updateMortgage = 1]
-     let tmpMyHouses []
-     set tmpMyHouses myHouses
-     let foreclosedHouses  listToSell with [missedPaymentCount > 3]
-     ifelse count foreclosedHouses > 0
-     [
-       if random-float 1.0 < 0.2
-       [
-        ask one-of foreclosedHouses
-        [
-         ;find my mortgage and sell me
-         let myMortgage one-of mortgages with [which-house = myself] ; find my mortgage
 
-         ;print myMortgage
-         ;print tmpMyHouses
-         set tmpMyHouses remove-item (position self  tmpMyHouses) tmpMyHouses
-         ;set is-rental 0
-         ;print tmpMyHouses
-         ;some mortgages get asked to die which don't exist ...
-         ;ask myMortgage
-         ;[
-         ;die
-         ;]
-         set missedPaymentCount 0
+ ask people with [investmentCapital < 0 and length myHouses > 1]       ;; ask people whose investment capital are negative and has more tha 1 house, ask each person
+ [
+   if random 100 < 50                                                  ;; randomly select 50% of people (not all of them)
+   [
+     let tmpHouses but-first myHouses                                  ;; get all but first of myHouses, assigned to tmpHouses
+
+     let listToSell houses with [member? self tmpHouses]               ;; get all the houses above into agent-set rather than a list, assign to listToSell (agent-set)
+
+     let tmpMyHouses []                                                ;; local var tmpMyHouses
+
+     set tmpMyHouses myHouses                                          ;; assign myHouses to tmpMyHouses
+
+     let foreclosedHouses  listToSell with [missedPaymentCount > 3]    ;; get those houses inside listToSell, which has more than 3 missedPayments, assign to foreclosedHouses
+
+     ifelse count foreclosedHouses > 0                                 ;; if foreclosedHouses do exist
+     [
+       if random-float 1.0 < 0.2                                       ;; randomly select 20% of them
+       [
+        ask one-of foreclosedHouses                                    ;; ask one of the foreclosedHouses
+        [
+
+         let myMortgage one-of mortgages with [which-house = myself]   ;; get one of the mortgages whose house is the foreclosedHouse, assign to myMortgage
+
+         set tmpMyHouses remove-item (position self  tmpMyHouses) tmpMyHouses ;; remove the foreclosedhouse from tmpMyHouses list
+
+;         set is-rental 0                                               ;; set the foreclosedHouse to be bought by someone
+;
+;         ask myMortgage [ die ]                                        ;; ask the foreclosedHouse's mortgage to die  *********** problematic *****************
+
+         set missedPaymentCount 0                                      ;; set the foreclosedHouse's missedPaymentCount to 0
+
          ]
        ]
      ]
      [
-      ask one-of listToSell
+      ask one-of listToSell                                            ;; if foreclosedHouses don't exist, ask one of the listToSell houses
       [
         ;find my mortgage and sell me
-        let myMortgage one-of mortgages with [which-house = myself] ; find my mortgage
+        let myMortgage one-of mortgages with [which-house = myself]    ;; get one of the mortgages which belongs to the house
 
-        ;print myMortgage
-        ;print tmpMyHouses
-        set tmpMyHouses remove-item (position self  tmpMyHouses) tmpMyHouses
-        ;set is-rental 0
-        ;print tmpMyHouses
-        ;some mortgages get asked to die which don't exist ...
-        ;ask myMortgage
-        ;[
-        ;die
-        ;]
+        set tmpMyHouses remove-item (position self  tmpMyHouses) tmpMyHouses  ;; remove the house from tmpMyHouses
+
+;        set is-rental 0
+;
+;        myMortgage [ ask myMortgage [ die ] ]                          ;; ask the foreclosedHouse's mortgage to die  *********** problematic *****************
+
       ]
      ]
-        ;print "Done Selling a house"
-     set myHouses tmpMyHouses
+
+     set myHouses tmpMyHouses                                          ;; now update myHouses for the person (mortgage die, the house is no longer the person's )
    ]
  ]
 end
 
+
+
 to update-people
-;ask people with [investmentCapital < 0]
-;[
-;set color pink
-;set size 2
-;]
-ask people with [investmentCapital >= 0]
-[
-set color rgb 0 (100 + (155 * (income - min-income ) / (max-income - min-income))) 0
-set size 1.0
-]
+
+  ask people with [investmentCapital < 0]                         ;; ask people with negative capital
+  [
+    set color pink                                                ;; make them pink and bigger
+    set size 2
+  ]
+
+  ;; [ check : color people by income ]
+  ask people with [investmentCapital >= 0]                         ;; ask people who still have positive capital after renting or buying
+  [
+    ;  set color rgb 0 (100 + (155 * (income - min-income ) / (max-income - min-income))) 0
+
+    ;; [ check people income level by color ]
+    set color palette:scale-scheme "Divergent" "Spectral" 4  income  min-income  max-income
+    ;; divide people into 4 colors according to their income range
+    ;; income color : red=smallest, yellow = small, green = medium, blue = large
+
+    set size 1.0
+  ]
 
   ask people
   [
+    ;; [ check : when to move houses : 1/84 chance or no money to pay rent or mortgage ]
+    set timeInHouse (timeInHouse + 1)                              ;; count the period the person occupies its house
 
-    set timeInHouse (timeInHouse + 1)
-    ;randomly move to a new house
-    if (random mobility = 1 or ; check to see if it's time to move to a new hosue
-          (investmentCapital < 0 and (length myHouses = 1))) ; or if house has become too expensive
+    if (; timeInHouse = mobility or                                ;; no person stay in a house more than 84 ticks (maybe too strict than the original code below)
+
+        random mobility = 1 or                                     ;; if 1/mobility chance occurred or (meaning only stay in the house for 7 years = 84 ticks )
+
+        (investmentCapital < 0 and (length myHouses = 1)))         ;; or the person has just one house but investmentCapital is negative
     [
-    ;;begin move to new house
-      ;sell-house
-      set timeInHouse 0
-      let myHouse item 0 myHouses
 
-      if ([is-rental] of myHouse = 0)
+      set timeInHouse 0                                            ;; set the period to stay in the house to be 0 (meaning leaving the house)
+
+      ;; [ check : house is sold due to time or lack of money]
+      let myHouse item 0 myHouses                                  ;; get the house the person lives in (just one house in total)
+
+      if ([is-rental] of myHouse = 0)                              ;; if the person is the owner of the house
       [
-        ;set [has-owner] of myHouse 0
-        ask myHouse [set has-owner 0]
+
+        ask myHouse [set has-owner 0]                              ;; ask the house to be one without an owner
       ]
-      ;set [is-occupied] of myHouse 0
-      ask myHouse [set is-occupied 0]
-      set myHouses remove-item 0 myHouses
 
-      ;buy new house
-          let housingList houses  with
-          [
-            count people-here = 0
-          ];; assign a house to occupy
+      ask myHouse [set is-occupied 0]                              ;; ask the house to be empty (not occupied)
 
-       let tmpHouse []
+      set myHouses remove-item 0 myHouses                          ;; this house is no longer on myHouses list
 
-       let myRentalList housingList with [is-rental = 1 and rent < [income] of myself]
-       let myPurchaseList housingList with [is-rental = 0 and mortgageCost < [income] of myself]
+      if investmentCapital < 0 and (length myHouses = 1) [ die ]   ;; ************** added ****************
+                                                            ;; if the person has no positive capital with one house, no way for him to rent neither, the person has to exit
 
-       ;print count myRentalList
-       ;print count myPurchaseList
+      let housingList houses  with                                 ;; get all the empty houses
+        [
+          count people-here = 0
+        ]
 
+       let tmpHouse 0                                             ;; temporal house variable 0
 
-       ifelse (count myPurchaseList > 0)
+       let myRentalList housingList with [is-rental = 1 and rent < [income] of myself]  ;; find empty houses which are for rental and the person can afford to rent
+
+       let myPurchaseList housingList with [is-rental = 0 and mortgageCost < [income] of myself] ;; find empty houses which are for sale and the person can afford mortgage
+
+       ifelse (count myPurchaseList > 0)                           ;; choose to a to-buy-house first
        [
-         set tmpHouse one-of myPurchaseList
+         set tmpHouse one-of myPurchaseList                        ;; make it tmpHouse
        ]
        [
-         if (count myRentalList > 0)
+         if (count myRentalList > 0)                               ;; if not, choose a to-rent-house
          [
-            set tmpHouse one-of myRentalList
+            set tmpHouse one-of myRentalList                       ;; make it tmpHouse
          ]
        ]
 
-      ;;occupy tmpHouse
-      move-to tmpHouse
-      ;;create-link-with  tmpHouse
-      set myHouses  fput tmpHouse myHouses           ; add it to my list of houses. most people will have one house.
+      move-to tmpHouse                                              ;; let the person move into the house (either to-buy or to-rent )
 
-      ask item 0 myHouses
+      ;;create-link-with  tmpHouse              maybe
+      set myHouses  fput tmpHouse myHouses                          ;; put this house in the first row of myHouses
+
+      ask item 0 myHouses                                           ;; get this house again
       [
-        set is-occupied 1
+        set is-occupied 1                                           ;; set it to be occupied
       ]
 
-     ;exchange mortgage
 
-       ask mortgages with [which-owner = myself and which-house = myHouse]
-       [
-         set which-owner myself
-        set which-house item 0 [myHouses] of which-owner
-        set which-bank one-of banks
-        move-to which-bank
-       ]
+      ;; if the person owns the house but time up has to move out find new houses, old mortgage has to transform into a new mortgage of the same person
+     ask mortgages with [which-owner = myself and which-house = myHouse]  ;; get the person's previous house's mortgage, myHouse is the person's previous house defined above
+     [
+       set which-owner myself                                             ;; owner of the mortgage stays the same
+
+      set which-house item 0 [myHouses] of which-owner                    ;; get the first house on the person's myHouses to be the mortgage house
+
+      set which-bank one-of banks                                         ;; choose a random (new) bank for the mortgage
+
+      move-to which-bank                                                  ;; move the mortgage to the bank
+     ]
     ]
-
-    ;;end move to a new house
   ]
 end
+
 
 to update-mortgages
 
-  let tmpMortgageCount count houses with [updateMortgage = 1]
-  create-mortgages tmpMortgageCount
+  let tmpMortgageCount count houses with [updateMortgage = 1]    ;; get all houses whose mortgage can be updated, assign to tmpMortgageCount
+
+  create-mortgages tmpMortgageCount                              ;; create equal number of mortgages with those houses above ( tmpMortgageCount ), ask each mortgage
+
   [
-    set which-house one-of houses with
+    set which-house one-of houses with                           ;; get a random house from the group above, assign to `which-house` of the mortgage
     [
       updateMortgage = 1
-       ;member? self myHouses = true
     ]
-    set which-owner one-of people with
+
+    set which-owner one-of people with                           ;; get one of the people whose myHouses has the mortgage house, assign to which-owner
     [
-      member? [which-house] of myself myHouses = true
+      member? [which-house] of myself myHouses = true            ;; myself is mortgage, use the house to locate the owner of the house
     ]
-    set which-bank one-of banks
-    set purchasePrice [price] of which-house
+
+    set which-bank one-of banks                                  ;; get a random bank
+
+    set purchasePrice [price] of which-house                     ;; get the `price` of the house, assign to purchasePrice
+
     ;set [purchase-price] of which-house purchasePrice
-    let newpp purchasePrice
-    ask which-house [set purchase-price newpp]
-    move-to which-bank
-    ;set [updateMortgage] of which-house 0  ; finished updating
-    ask which-house [set updateMortgage 0]
+    let newpp purchasePrice                                      ;; save the price to a local var
+
+    ask which-house [set purchase-price newpp]                   ;; save the price to `purchase-price` of the house
+
+    move-to which-bank                                           ;; move mortgage to the bank
+
+    ask which-house [set updateMortgage 0]                       ;; ask the house to stop updateMortgage
   ]
+
 end
 
+
 to update-available-capital
-  ; update available capital
-  ask people
+
+  ask people                                                     ;; ask each person
   [
-    let tmpCapital income
-    let tmpHouse item 0 myHouses
-    ifelse ([is-rental] of tmpHouse = 0)
+    let tmpCapital income                                        ;; let income to be tmpCapital
+
+    let tmpHouse item 0 myHouses                                 ;; get the first house of myHouses to be tmpHouse  (distinguish rent or own in the following )
+
+    ifelse ([is-rental] of tmpHouse = 0)                         ;; if the tmpHouse is not rental but owned
     [
-      set tmpCapital tmpCapital - [mortgagecost] of tmpHouse
+      set tmpCapital tmpCapital - [mortgagecost] of tmpHouse     ;; update tmpCapital by subtract mortgageCost
     ]
     [
-     set tmpCapital tmpCapital - [rent] of tmpHouse
+     set tmpCapital tmpCapital - [rent] of tmpHouse              ;; if the tmpHouse is rental, then update tmpCapital by subtracting rent
     ]
-    if (length myHouses > 1)
+    if (length myHouses > 1)                                     ;; if there are more than 1 house in myHouses
     [
-      let tmpHouses but-first myHouses
-      ask houses with [member? self tmpHouses]   ; find houses that are in the person's list, and subtract cost
+      let tmpHouses but-first myHouses                           ;; get the houses except the first one
+
+      ask houses with [member? self tmpHouses]                   ;; ask each of the tmpHouses
       [
-        set tmpCapital tmpCapital - mortgageCost
-        ifelse tmpCapital < 0
+        set tmpCapital tmpCapital - mortgageCost                 ;; update tmpCapital by subtract mortgageCost
+
+        ifelse tmpCapital < 0                                    ;; if tmpCapital is negative, meaning this time the person didn't pay mortgage in full
         [
-          set missedPaymentCount (missedPaymentCount + 1)
+          set missedPaymentCount (missedPaymentCount + 1)        ;; add 1 up to missedPaymentCount
         ]
         [
-          set missedPaymentCount 0
+          set missedPaymentCount 0                               ;; if tmpCapital is positive, no problem with mortgage payment this time
         ]
       ]
     ]
-    set investmentCapital tmpCapital
+    set investmentCapital tmpCapital                             ;; update tmpCapital to investmentCapital
   ]
 end
 
+
+;; [ check : buy a second house for renting ]
 to buy-investment-houses
-  ask people
+
+  ask people                                                      ;; ask each person
   [
-    ;randomly choose a new house to buy
-    if random-float 1.0 < 0.1
+
+    if random-float 1.0 < 0.1                                     ;; only for the 10% of chance or time or 10% of people are selected randomly
     [
-      ;print "buying an investment house"
-      ;buy new house
-          let housingList houses  with
-          [
-            count people-here = 0 and
-            mortgagecost < [investmentCapital] of myself
-          ];; assign a house to buy
-       ;print [mortgagecost] of houses
-       ;print investmentCapital
+
+      let housingList houses  with                                ;; find the person all empty houses with affordable mortgages, assign to housingList
+      [
+        count people-here = 0 and
+
+        mortgagecost < [investmentCapital] of myself
+      ]
+
        let tmpHouse []
 
-       ;let myPurchaseList housingList with [is-rental = 0 and mortgageCost < [income] of myself]
-
-       if (count housingList > 0)
+       if (count housingList > 0)                                 ;; if such house exist, ( it does not matter whether this house was for rental before)
        [
-         set tmpHouse one-of housingList ;if there are houses available, choose one to buy
-         ;;add house to my list
-         ;print "tmpHouse"
-         ;print tmpHouse
-         set myHouses  lput tmpHouse myHouses           ; add it to my list of houses. most people will have one house.
+         set tmpHouse one-of housingList                          ;; take a random house from the group of houses
 
-         ;adjust capital
-         ;set [is-rental] of tmpHouse 1
-         ask tmpHouse [set is-rental 1]
-         set investmentCapital (income - [mortgageCost] of tmpHouse)
+         set myHouses  lput tmpHouse myHouses                     ;; add this new house to the end of myHouses
+
+
+         ask tmpHouse [set is-rental 1]                           ;; make this house a rental house
+
+         set investmentCapital (income - [mortgageCost] of tmpHouse)  ;; calc the remaining investmentCapital
 
        ]
-        ;print "done buying an investment house"
+
     ]
   ]
 end
 
 to setup-mortgages
-  set-default-shape mortgages "circle"
-  create-mortgages count houses with [is-occupied = 1]
-  ask mortgages
+
+  set-default-shape mortgages "circle"                                      ;; all mortgages are circle shapes
+
+  create-mortgages count houses with [is-occupied = 1]                      ;; create as many mortgages as the occupied houses ( include rented and purchased houses)
+
+  ask mortgages  ;; ask each mortgage to
   [
-   let myHouse one-of houses with [is-occupied = 1 and updateMortgage = 1]
-   set which-owner one-of people with
+   let myHouse one-of houses with [is-occupied = 1 and updateMortgage = 1]  ;; take a random house which is occupied and whose mortgage needs update
+
+   set which-owner one-of people with                                       ;; get the person who has the house (rent or own it ? ), assign to which-owner
    [
      item 0 myHouses = myHouse
    ]
 
-    set which-house item 0 [myHouses] of which-owner
-    set which-bank one-of banks
-    set purchasePrice [price] of which-house
-    ;set [updateMortgage] of which-house 0
-    ask which-house [set updateMortgage 0]
-    move-to which-bank
-    set color green
+    set which-house item 0 [myHouses] of which-owner                        ;; get the house of the person (equal to myHouse), assign to which-house
+
+    set which-bank one-of banks                                             ;; get one of the banks, assign to which-bank
+
+    set purchasePrice [price] of which-house                                ;; get the price of the house, assign to `purchasePrice` of the mortgage
+
+    ask which-house [set updateMortgage 0]                                  ;; ask the house to stop update mortgage, so that next mortgage won't take the same house again
+
+    move-to which-bank                                                      ;; move mortgage to the bank
+
+    set color green                                                         ;; color the mortgage green
+
   ]
 end
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; paint land, create enough houses, set house price, nobody lives in (occupied),
+;; paint land, create certain % of land to be houses, set house price with gradient, nobody lives in (occupied) for now,
 ;; calc mortgage cost, make certan % houses for rental, set rental price, localize houses according to prices top high bottom low;
-;; rental houses are red, low price light, high price dark ; non-rental houses are blue, low price light blue, high price dark blue
+;; rental houses are red, low price dark, high price bright ; non-rental (purchased) houses are blue, low price dark blue, high price bright blue
 ;; house size to be 1, mortgage are allowed to be updated now ???
 
 to setup-houses
 
 
+  ;; [ check empty land ] empty land are black
   ask patches  ;; ask each patch or land
  [
-    set pcolor black  ;; pain land black
+    if land-color = "black" [ set pcolor 0 ]                  ;; paint land black (right now seems better than gray )
+
+    if land-color = "gray" [ set pcolor 5 ]
  ]
 
 
-  set-default-shape houses "house"  ;; use "house" as default shape for all houses
+  set-default-shape houses "house"                            ;; use "house" as default shape for all houses
 
 
-  let houseCount ceiling (initial-density * world-width * world-height / 100)  ;; get the number of houses to be created
+  ;; [ check house number ] The model is initiated by creating houses at a specified density on the map (using ‘Initial density of patches’ parameter)
+  let houseCount ceiling (initial-density * world-width * world-height / 100)
+                                                              ;; get the number of houses to be created
 
-  create-houses houseCount  ;; create certain number of houses
+  create-houses houseCount                                    ;; create houses to the same number above
 
-  ask houses  ;; ask each house to do the following
+  ask houses                                                  ;; ask each house to do the following
   [
-       set price (min-price + random (max-price - min-price))  ;; give each house a random price between min and max prices
 
-       set is-occupied 0  ;;  make is-occupied 0 , meaning the house is not occupied, nobody lives in it
+       ;; [ check house price ] Each house is then assigned a price within the specified range.
+       set price (min-price + random (max-price - min-price)) ;; give each house a random price between min and max prices
 
-       set mortgageCost 0.01 + price * interest-rate / 50  ;; mortgage cost = 2 * interest-reate %  * price + 0.01  ???? why add 0.01 ????
+       set is-occupied 0                                      ;;  make is-occupied 0 , not yet rented or bought
 
-       if random-float 100.0 < rental-density  ;;  this condition to be randomly true for rental-density % of time
+       set mortgageCost 0.01 + price * interest-rate / 50     ;; calc this house mortgageCost
+
+       ;; [ check rentals with price ] Based on the ‘Rental House Density’ parameter, a fraction of houses are assigned as rentals. The rest is owned houses.
+       if random-float 100.0 < rental-density                 ;; randomly set rental-density % of houses for rental
        [
-          set is-rental 1  ;; make rental-density % of houses are for-rental
+          set is-rental 1                                     ;; is-rental as 1
 
-          set rent  price * rental-fraction  ;; rental price to be price * rental-fraction
+          set rent  price * rental-fraction                   ;; make rental price, to be price * rental-fraction
        ]
 
-       let tmpPrice price  ;; save the house price to temporary price
+       let tmpPrice price                                     ;; save the house price to temporary price
 
-       move-to one-of patches with  ;; move the house to one of the patches
+       ;; [ check house locations ] all houses are located on y-axis parallel to prices (top with high price, bottom with low price)
+       move-to one-of patches with                            ;; move the house to one of the empty patches/land
        [
-            count (houses-here) = 0 and  ;; the patches have no houses on it
+            count (houses-here) = 0 and                       ;; the patches have no houses on it
 
-            abs (pycor / world-height - ((tmpPrice - min-price) / (max-price - min-price))) < .1  ;; the house pycor stands for its price position in all house price-range
+            abs (pycor / world-height - ((tmpPrice - min-price) / (max-price - min-price))) < .1  ;; higher the land, expensive the house; vice verse
                                                                                                   ;; allow maximum 10% variation
                                                                                                   ;; it requires the world origin to be at the bottom left
        ]
 
-       ifelse is-rental = 1  ;; if the house is for rental
+
+    ;; [ check house colors ] rental houses are red, brighter color is high price; owned houses are blue, brighter color is high price
+       ifelse is-rental = 1                                    ;; if the house is for rental
 
        [
-          set color rgb (55 + (200 * (price - min-price) / (max-price - min-price))) 0 0  ;; make min price light red 55 and max price dark red 55 + 200, everything between
+          set color rgb (100 + (155 * (price - min-price) / (max-price - min-price))) 0 0
+                                                               ;; make min price light red 55 and max price dark red 55 + 200, everything between
+
+         ;; set color palette:scale-scheme "Divergent" "RdYlGn" 3  price  min-price max-price
        ]
        [
-          set color rgb 0 0 (55 + (200 * (price - min-price) / (max-price - min-price)))  ;; if house not for rental, make min-price light blue 55, max-price dark blue 255
+          set color rgb 0 (100 + (155 * (price - min-price) / (max-price - min-price))) 0
+                                                               ;; if house for purchase, make min-price light blue 55, max-price dark blue 55
+
+         ;; set color palette:scale-scheme "Divergent" "RdYlGn" 5  price  min-price max-price  ;; RdGy, RdYlBu, RdYlGn
        ]
 
-       set size 1   ;; make the house size to be 1
+       set color lput 120 color                                 ;; add transparency to houses, current 120 is the best value for display
 
-       set updateMortgage 1   ;; set updateMortgage to be 1 ( previously 0 at setup ) ???? what this is for? ?? to be updated?
+       set size 1                                               ;; make the house size to be 1
+
+       set updateMortgage 1                                     ;; ask all houses need to have mortgage
   ]
 
 end
 
 
-;;
+;; creat certain % of all houses number of people, create their income, identify empty and rental houses group, and empty and purched houses group;
+;; get one house from the purchased group first, if not available then from rental group;
+;; a person will choose to live in the purchsed house, if can't, then live in rented house;
+;; set up timeInHouse to be a random number within `mobility` and set is-occupied to be 1 ;
+;; calc investmentCapital for the person as rentor or owner of the house;
+;; paint the person color according to its income
 to setup-people
 
-  set-default-shape people "person"  ;; give all people a person-shape as default shape
+  set-default-shape people "person"          ;; give all people a person-shape as default shape
 
+  ;; [ check people number ] a proportion of houses to be people number
   let num-people (count houses * percent-occupied / 100)  ;; get the number of houses are occupied
 
-  create-people num-people  ;; create equal number of people to occupy the houses, and for each person
+  create-people num-people                   ;; create equal number of people to occupy the houses, and for each person
     [
-      set income (random (max-income - min-income) + min-income)  ;; create an random income between min to max income
+                                             ;; [ check people income ]  create an random income between min to max income
+      set income (random (max-income - min-income) + min-income)
 
-      set myHouses []                      ;; create an empty house list
+      set myHouses []                        ;; every person has property myHouses, set it as empty list
 
-      let housingList houses  with         ;; put many houses into `housingList` agentset
+      ;; [ check empty houses ]
+      let housingList houses  with           ;; get all empty houses , into `housingList` agentset
           [
-            count people-here = 0          ;; the land where the house is at has no people
+            count people-here = 0            ;; the land where the house is at has no people
           ]
 
-    let tmpHouse 0                       ;; create a local house variable (tmpHouse is never a list, so we don't initialize it as [] )
+    let tmpHouse 0                           ;; create a local house variable (tmpHouse is never a list, so we don't initialize it as [] )
 
-      let myRentalList housingList with [  ;; get all houses not-occupied,
-          is-rental = 1 and                ;; for-rental and
-          rent < [income] of myself]       ;; the person's income > rent, can afford rent, --> under `myRentalList
+                                             ;; [ check which empty houses the person can rent ]
+
+      let myRentalList housingList with [    ;; get all houses not-occupied or empty,
+          is-rental = 1 and                  ;; for-rental and
+          rent < [income] of myself]         ;; the person's income > rent, can afford rent, --> under `myRentalList
+
+                                             ;; [ check which empty houses the person can buy ]
 
       let myPurchaseList housingList with [  ;; get all houses not-occupied,
           is-rental = 0 and                  ;; not-rental and
           mortgageCost < [income] of myself] ;; the person's income > mortgageCost, can afford mortgage   --> under `myPurchaseList`
 
+                                             ;; [ check - the person will prioritize buying then renting the house ]
 
       ifelse (count myPurchaseList > 0)      ;; if the houses the person can buy do exist
       [
-        set tmpHouse one-of myPurchaseList   ;; get one of the houses into `tmpHouse` list
+        set tmpHouse one-of myPurchaseList   ;; get one of the houses under variable `tmpHouse`
 
       ]
       [
         if (count myRentalList > 0)          ;; otherwise, if the houses the person can rent do exist
         [
-           set tmpHouse one-of myRentalList  ;; get one of the houses into `tmpHouse`
+           set tmpHouse one-of myRentalList  ;; get one of the houses under variable `tmpHouse`
 
         ]
       ]
 
 
-     move-to tmpHouse                        ;; move the person to where the targed house
+     move-to tmpHouse                        ;; move the person to where the targed house (to rent or to buy-own)
 
-     set timeInHouse random mobility         ;; choose a random number below 76 = mobility to be this person's `timeInHouse`
+     set size 1                              ;; make person size be 1
 
-     set myHouses  lput tmpHouse myHouses    ;; put the single-element list tmpHouse to the end of myHouses list
 
-     ask item 0 myHouses                     ;;
+     set timeInHouse random mobility         ;; randomize how long has the person stayed in the house, it may be any tick from 0 to 84 ticks
+
+     set myHouses  lput tmpHouse myHouses    ;; put the house (to buy or to rent) at the last of the house list
+
+                                             ;; [ check house occupied ] when people move in to rent or own, it is occupied
+
+     ask item 0 myHouses                     ;; ask the first item of myHouses list
      [
-       set is-occupied 1
+       set is-occupied 1                     ;; make this house occupied, 1 as occupied, 0 as not
      ]
-    ;adjust capital
-    let houseType [is-rental] of tmpHouse
-    ifelse houseType = 1
+
+    let houseType [is-rental] of tmpHouse    ;; get the house rental-status, this is pre-determined when buiding the houses
+
+    ifelse houseType = 1                     ;; if the house is rented
+
     [
-      set investmentCapital (income - [rent] of tmpHouse)
+      set investmentCapital (income - [rent] of tmpHouse)          ;; investmentCapital of the person is remaining of ( income - rent )
     ]
     [
-      set investmentCapital (income - [mortgageCost] of tmpHouse)
+      set investmentCapital (income - [mortgageCost] of tmpHouse)  ;; if the house is purchased, investmentCapital of the person is remaining of ( income - mortgageCost )
     ]
-    ;give self a color
-    ;set color rgb 0 (100 + (155 * (income - min-income ) / (max-income - min-income))) 0
-    set color green
-    ;set color scale-color green income min-income max-income
+
+
+    ;; set color rgb 0 (100 + (155 * (income - min-income ) / (max-income - min-income))) 0
+    ;; set color green            ;; these are three ways of coloring by values, but not as good as the code done in House2009
+    ;; set color scale-color yellow income min-income max-income
+
+    ;; [ check color people by income ]
+    set color palette:scale-scheme "Divergent" "Spectral" 4  income  min-income  max-income  ;; Spectral , Divergent
+                                                                   ;; divide people into 4 colors according to their income range
+                                                                   ;; income color : red=smallest, yellow = small, green = medium, blue = large
+
     ]
 end
 
 to setup-banks
-  set-default-shape banks "box"
-  create-banks num-banks
+
+  set-default-shape banks "box"           ;; banks default to be box shape
+
+  create-banks num-banks                  ;; create num-banks of banks
     [
-      set color yellow
-      move-to one-of patches with
+      set color yellow                    ;; all banks are yellow
+
+      move-to one-of patches with         ;; build banks on empty lands (randomly chosen)
         [count (turtles-here) = 0]
-        set size 2
+
+        set size 2                        ;; banks are big, twice size of house
     ]
 end
 
+
 to compute-bank-balances
-  ask banks
+
+  ask banks                                                           ;; ask each bank
   [
-  let delta 0
-  ask mortgages with [which-bank = myself]
+  let delta 0                                                         ;; local var delta 0
+
+  ask mortgages with [which-bank = myself]                            ;; ask all and each mortgages whose bank is this bank
     [
-     if [missedPaymentCount] of which-house > 0
+     if [missedPaymentCount] of which-house > 0                       ;; if the mortgage's house missPaymentCount > 0
      [
-     set delta (delta + (([price] of which-house) - purchasePrice))
+     set delta (delta + (([price] of which-house) - purchasePrice))   ;; update delta by adding all the houses' (price - mortgage's purchasePrice) onto delta
      ]
     ]
-  print delta
-  set incomeFromHouses delta
-  ifelse (delta < 0)
+
+  set incomeFromHouses delta                                          ;; delta is incomeFromHouses
+
+  ifelse (delta < 0)                                                  ;; if bank income from the houses are negative, color red otherwise yellow
    [
    set color red
    ] ; else
@@ -739,14 +838,14 @@ end
 @#$#@#$#@
 GRAPHICS-WINDOW
 541
-17
-969
-446
+24
+1060
+544
 -1
 -1
-12.73
+15.5
 1
-10
+15
 1
 1
 1
@@ -856,10 +955,10 @@ rental-density
 HORIZONTAL
 
 SLIDER
-7
-136
-237
-169
+3
+160
+233
+193
 interest-rate
 interest-rate
 .25
@@ -960,10 +1059,10 @@ rental-fraction
 Number
 
 PLOT
-540
-472
-790
-592
+-5
+561
+245
+681
 owner occupied and rental homes
 NIL
 NIL
@@ -999,7 +1098,7 @@ mobility
 mobility
 0
 1200
-76.0
+84.0
 1
 1
 NIL
@@ -1016,10 +1115,10 @@ Calibration Params
 1
 
 PLOT
-975
-24
-1135
-467
+1099
+19
+1259
+462
 average loc
 NIL
 NIL
@@ -1054,10 +1153,10 @@ PENS
 "myMean" 1.0 0 -16777216 true "" ""
 
 PLOT
-797
-483
-1063
-603
+252
+572
+518
+692
 Interest Rate
 ticks
 IR
@@ -1137,14 +1236,44 @@ PENS
 "AverageMortgage" 1.0 0 -2674135 true "" ""
 
 CHOOSER
-18
-81
-156
-126
+8
+79
+100
+124
 exp-options
 exp-options
 "base line"
 0
+
+CHOOSER
+118
+79
+210
+124
+land-color
+land-color
+"black" "gray"
+0
+
+TEXTBOX
+109
+129
+259
+147
+gray is better for viewing houses
+8
+0.0
+1
+
+TEXTBOX
+632
+10
+1012
+30
+income color : red=smallest, yellow = small, green = medium, blue = large
+8
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
