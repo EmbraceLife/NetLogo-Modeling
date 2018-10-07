@@ -1,5 +1,6 @@
 # NetLogo-Modeling
 earlier versions can be found [here](https://github.com/EmbraceLife/shendusuipian/tree/master/complexity_demos)
+[see my models on NetLogo model sites](http://modelingcommons.org/account/models/3066)
 
 ## UK Housing Market Model 2009 paper version (complex, finished)
 - The Finished updated model is [here](https://github.com/EmbraceLife/NetLogo-Modeling/blob/master/UK%20house%20market%202009%20new%20setting.nlogo) 
