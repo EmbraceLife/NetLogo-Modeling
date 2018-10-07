@@ -17,5 +17,6 @@
 - I am [updating this model](https://github.com/EmbraceLife/NetLogo-Modeling/blob/master/Housing_Market_Revisited.nlogo)  at the moment 
 
 ## Replicate Economics formulas with ABM
-- If Demand and Supply formula can be reproduced by a NetLogo model, could we do it to all the commonly known Economics Formula?
+- If Demand and Supply formula and graphs can be reproduced by a NetLogo model with multiple agents interacting with each other, could we generate the graphs of all the commonly known Economics Formula with NetLogo?
+- If it is possible and doable, then it would indicate that ABM can help us discover Economic formulas and theories. 
 
