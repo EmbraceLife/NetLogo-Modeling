@@ -1,13 +1,16 @@
-;; all the comments below are written by 深度碎片
+;; updated, further explored and heavily commented by 深度碎片
 ;; code can be downloaded at https://github.com/EmbraceLife/NetLogo-Modeling/blob/master/simple%20toy%20models/04%20ZITrading.nlogo
 
-;Gode and Sunder 1993
-;simplified version of double auction
+;; Originally Developed by Mark E. McBride Department of Economics Miami University, Last updated:  January 2, 2014
+;; code and a video can be found from https://github.com/memcbride/ZITrading
+
+;; Introduction and usage ;;
+;;Gode and Sunder 1993
+;;simplified version of double auction
 ;; double auction (in Experimental Economics) with ABM can achieve price equilibrium
 ;; paper: zero intelligent agents can achieve price equilibrium, (rationality is not needed).
 
-
-;; Why ;; Why create or study this model on double auction or supply and demand curve?
+;; My purpose ;; Why create or study this model on double auction or supply and demand curve?
 ;; Economics concepts and formulas can be taught differently and explored in more experimentally and realistically or lively
 ;; see Axtell on Conventional vs [ABM approach to economics](https://youtu.be/YMqq141k_q0?t=1890) up to 53:52
 
@@ -24,6 +27,7 @@
 ;- high price buyers, while randomly shopping can still find low price sellers, and vice verse. They will look for the best deal within their reach. (remove-high-price-buyers, policy maker set price bars)
 ;7. if loss is allowed, then many more trades or deals can be made (subsidies to increase economic activities ?)
 
+;; inner workings and rules ;;
 ;1. each bid, ask and transaction are valid for a single unit
 ;2. transaction canceled any unaccepted bids and offers
 ;3. when bid and ask crossed, transaction price was equal to the earlier of the two (in time, who price first)
@@ -616,7 +620,7 @@ to draw-histogram-prices                                                        
 ;; http://memcbride.net/
 ;; http://www.memcbride.net/labs/
 ;; Last updated:  January 2, 2014
-;; code to be downloaded from https://github.com/memcbride/ZITrading
+;; code and a video can be found from https://github.com/memcbride/ZITrading
 
 ;; Copyright and License
 ;; See the Info tab.
@@ -676,13 +680,13 @@ to draw-histogram-prices                                                        
 ;;  should be happening in the world view.
 @#$#@#$#@
 GRAPHICS-WINDOW
-760
+1217
 10
-1261
-512
+1427
+221
 -1
 -1
-9.67
+3.961
 1
 10
 1
@@ -778,10 +782,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-47
-197
-113
-230
+435
+109
+501
+142
 Setup
 setup
 NIL
@@ -795,10 +799,10 @@ NIL
 1
 
 BUTTON
-341
-199
-406
-232
+684
+105
+749
+138
 Go
 go
 T
@@ -812,10 +816,10 @@ NIL
 1
 
 PLOT
-23
-507
-1058
-931
+11
+197
+935
+618
 Demand-Supply
 Quantity (price offers)
 Price (cost or value or transprice)
@@ -835,10 +839,10 @@ PENS
 "trade-value" 1.0 0 -13840069 true "" ""
 
 BUTTON
-616
-112
-681
-145
+376
+42
+441
+75
 Reset
 restore-defaults
 NIL
@@ -852,10 +856,10 @@ NIL
 1
 
 MONITOR
-5
-438
-64
-483
+962
+536
+1021
+581
 Volume
 count data
 0
@@ -863,10 +867,10 @@ count data
 11
 
 MONITOR
-62
-438
-133
-483
+1019
+536
+1090
+581
 Avg Price
 mean [price] of data
 2
@@ -874,52 +878,21 @@ mean [price] of data
 11
 
 MONITOR
-132
-438
-191
-483
+1089
+536
+1148
+581
 Std Dev
 standard-deviation [price] of data
 2
 1
 11
 
-MONITOR
-700
-104
-757
-149
-Time
-ticks
-0
-1
-11
-
-TEXTBOX
-5
-88
-147
-109
-Step 1:  Select Parameters
-11
-0.0
-0
-
-TEXTBOX
-5
-169
-143
-187
-Step 2:  Setup the model
-11
-0.0
-0
-
 PLOT
-5
-264
-219
-427
+962
+362
+1176
+525
 Price Dispersion
 Price
 # of Trades
@@ -934,10 +907,10 @@ PENS
 "default" 1.0 1 -16777216 true "" ""
 
 PLOT
-226
-264
-422
-428
+973
+114
+1169
+278
 Market Efficiency
 # of Trades
 Efficiency
@@ -952,41 +925,21 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot efficiency"
 
 MONITOR
-190
-438
-251
-483
+1147
+536
+1208
+581
 Efficiency
 efficiency
 2
 1
 11
 
-TEXTBOX
-158
-190
-339
-246
-Step 3:  Go\nStep 4:  To pause press Go again\nStep 5:  To run simulation again, got to step 1
-11
-0.0
-0
-
-TEXTBOX
-511
-115
-607
-143
-Reset parameters to defaults
-11
-0.0
-0
-
 SWITCH
-343
-109
-479
-142
+456
+44
+592
+77
 constrained?
 constrained?
 0
@@ -994,10 +947,10 @@ constrained?
 -1000
 
 MONITOR
-305
-441
-363
-486
+1052
+291
+1110
+336
 Pred. Q
 predictedq
 0
@@ -1005,10 +958,10 @@ predictedq
 11
 
 MONITOR
-363
-441
-420
-486
+1110
+291
+1167
+336
 Pred. P
 predictedp
 2
@@ -1026,26 +979,43 @@ exp-options
 0
 
 SWITCH
-531
-23
-711
-56
+641
+27
+821
+60
 remove-low-cost?
 remove-low-cost?
-0
+1
 1
 -1000
 
 SWITCH
-532
-62
-718
-95
+642
+66
+828
+99
 remove-high-buyer?
 remove-high-buyer?
 1
 1
 -1000
+
+BUTTON
+560
+107
+623
+140
+step
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
