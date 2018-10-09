@@ -1,14 +1,16 @@
 ;; updated, further explored and heavily commented by 深度碎片
 ;; code can be downloaded at https://github.com/EmbraceLife/NetLogo-Modeling/blob/master/simple%20toy%20models/04%20ZITrading.nlogo
+;; a series of video tutorials accompanies this updated model https://www.youtube.com/playlist?list=PLx08F1efFq_UUB2Mps2f4gauk3YKQtvbY&disable_polymer=true
 
 ;; Originally Developed by Mark E. McBride Department of Economics Miami University, Last updated:  January 2, 2014
-;; code and a video can be found from https://github.com/memcbride/ZITrading
+;; original code and video can be found from https://github.com/memcbride/ZITrading
 
 ;; Introduction and usage ;;
-;;Gode and Sunder 1993
-;;simplified version of double auction
-;; double auction (in Experimental Economics) with ABM can achieve price equilibrium
-;; paper: zero intelligent agents can achieve price equilibrium, (rationality is not needed).
+;; Gode and Sunder 1993 : Allocative Efficiency Markets with Zero-Intelligent traders: Market as a partial substitute for individual rationality
+;; "We report market experiments in which human traders are replaced by 'zero-intelligent' programs that submit random bids and offers.
+;; Imposing a budget constraint (i.e., not permitting traders to sell below their costs or buy above their values) is sufficient to raise
+;; the allocative efficiency of these auctions close to 100 percent.
+;; Allocative efficiency of a double auction derives largely from its structure, independent of traders' motivation, intelligence, or learning."
 
 ;; My purpose ;; Why create or study this model on double auction or supply and demand curve?
 ;; Economics concepts and formulas can be taught differently and explored in more experimentally and realistically or lively
@@ -976,7 +978,7 @@ CHOOSER
 exp-options
 exp-options
 "none" "setup" "do trade once"
-0
+2
 
 SWITCH
 641
@@ -996,7 +998,7 @@ SWITCH
 99
 remove-high-buyer?
 remove-high-buyer?
-1
+0
 1
 -1000
 
