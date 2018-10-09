@@ -15,6 +15,7 @@
 ;; My purpose ;; Why create or study this model on double auction or supply and demand curve?
 ;; Economics concepts and formulas can be taught differently and explored in more experimentally and realistically or lively
 ;; see Axtell on Conventional vs [ABM approach to economics](https://youtu.be/YMqq141k_q0?t=1890) up to 53:52
+;; detailed comparison on supply and demand https://youtu.be/AV1tMyinot0?list=PLfIxZEHFUbKlMbwYbPR79GjRnliMmJNiT&t=919
 
 ;; presentation ;;
 ;supply and demand curve
