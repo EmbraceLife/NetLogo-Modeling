@@ -1,5 +1,5 @@
 ;extensions [profiler]
-extensions [palette]
+extensions [palette profiler]
 ;;;
 ;;; PwC Housing Market model
 
@@ -264,15 +264,22 @@ if scenario = "base-line" [
   ;; Density=70% is a slider global variable for houses, 70 houses on 100 patches, use this ratio to create enough houses for this world
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-setup = "3 houses" [
-    inspect max-one-of houses [who]
-    user-message (word "3 houses : build a number of houses. Check which properties are initialized. " )
-    stop-inspecting max-one-of houses [who]
+;  if debug? or debug-setup = "3 houses" [
+;    inspect max-one-of houses [who]
+;    user-message (word "3 houses : build a number of houses. Check which properties are initialized. " )
+;    stop-inspecting max-one-of houses [who]
+;  ]
+
+  if exp-options = "houseStory" [
+     ask one-of houses [
+        set size 3
+        show "I am a house just created!----------------------------------------------------------------------------------------------------"
+        show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+        show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
+        show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
+
+     ]
   ]
-
-
-
-
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -282,6 +289,13 @@ if scenario = "base-line" [
   set-default-shape owners "dot"  ;; all owners are dots
 
   let occupied-houses n-of ((1 - initialVacancyRate) * count houses) houses  ;; randomly take (1 - initialVacancyRate) proportion of houses to be `occupied-houses`
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  if exp-options = "houseStory" and not member? 3 [size] of occupied-houses
+        [
+        show "I am not selected to be the occupied houses at first. ----------------------------------------------------------------------------------------------------"
+      ]
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ask occupied-houses [  ;; define each home-owner's properties
 
@@ -336,12 +350,20 @@ if scenario = "base-line" [
 
     ]
 
-    if exp-options = "house" and who = 0 [
-       type " the house is made occupied by created an owner to it : check for-sale, my-owner" print ""
-       user-message (word "" )
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    if exp-options = "houseStory" [
+      if size = 3 [
+
+       show "I am selected to be an occupied house, and an owner is born to me ! --------------------------------------------------"
+       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+       show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
+       show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
       ]
+     ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ]
+
 
   set nOriginalOwners count owners
   paint-houses  ;; since houses got prices, let's paint houses
@@ -359,11 +381,13 @@ if scenario = "base-line" [
 
    ask houses with [ sale-price = 0 ] [  ;; loop each empty house
 
-    if debug? or debug-setup = "5 empty" [
-
-      inspect self ;; check bare empty house
-      user-message (word "5 empty : check a bare empty house, to initialize my-owner, sale-price, and color it up " )
-    ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;    if debug? or debug-setup = "5 empty" [
+;
+;      inspect self ;; check bare empty house
+;      user-message (word "5 empty : check a bare empty house, to initialize my-owner, sale-price, and color it up " )
+;    ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
      set my-owner nobody  ;; my-owner from 0 to nobody
 
@@ -376,11 +400,28 @@ if scenario = "base-line" [
 
      set color palette:scale-scheme "Divergent" "Spectral" 5 (ln sale-price) ln-min-price ln-max-price  ;; borrow it from paint-houses to color the empty house
 
-    if debug? or debug-setup = "5 empty" [
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;    if debug? or debug-setup = "5 empty" [
+;
+;      user-message (word "5 empty : No more a bare house, check my-owner, sale-price, and new color. " )
+;      stop-inspecting self
+;    ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-      user-message (word "5 empty : No more a bare house, check my-owner, sale-price, and new color. " )
-      stop-inspecting self
-    ]
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    if exp-options = "houseStory" [
+      if size = 3 [
+
+       show "I am an empty house to get a sale-price ! --------------------------------------------------"
+       show (word "my sale-price is determined by all occupied sale-prices : " not any? local-houses ", or just local-occupied-sale-prices : " any? local-houses )
+       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+       show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
+       show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
+      ]
+     ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
  ]
 
 
@@ -397,18 +438,29 @@ if scenario = "base-line" [
 
     if quality > 3 [set quality 3] if quality < 0.3 [set quality 0.3]  ;; quality is between 0.3 to 3
 
-
 ;    set color scale-color magenta quality 0 5  ;; quality by magenta scale
 
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    if exp-options = "houseStory" [
+      if size = 3 [
+
+       show "I am updating my house quality, everyone too ! --------------------------------------------------"
+       show (word "quality is sale-price / medianPriceOfAllHouses  ")
+       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+       show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
+       show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
+      ]
+     ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ]
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-setup = "7 quality" [
-
-    inspect max-one-of houses [ who ]
-    user-message (word "7 quality: initialize quality of house, based on sale-price " )
-    stop-inspecting max-one-of houses [ who ]
-  ]
+;  if debug? or debug-setup = "7 quality" [
+;
+;    inspect max-one-of houses [ who ]
+;    user-message (word "7 quality: initialize quality of house, based on sale-price " )
+;    stop-inspecting max-one-of houses [ who ]
+;  ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -423,11 +475,11 @@ if scenario = "base-line" [
      ]
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-setup = "9 realtors: my-houses, avg-price" [
-    inspect max-one-of realtors [ who ]
-    user-message (word "9 realtors: initialize sales, my-houses, average-price for realtors ")
-    stop-inspecting max-one-of realtors [ who ]
-  ]
+;  if debug? or debug-setup = "9 realtors: my-houses, avg-price" [
+;    inspect max-one-of realtors [ who ]
+;    user-message (word "9 realtors: initialize sales, my-houses, average-price for realtors ")
+;    stop-inspecting max-one-of realtors [ who ]
+;  ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -445,11 +497,15 @@ if scenario = "base-line" [
 
      hatch-records 1 [  ;; hatch a record from a house
 
-      if debug? or debug-setup = "10 records" [
-         inspect myself ;; inspect the current house
-         inspect self ;; inspect the current record
-         user-message (word "10 records :  initialize the-house, selling-price for current record; initialize my-realtor for current house; update sales for my-realtor. ")
-      ]
+
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;      if debug? or debug-setup = "10 records" [
+;         inspect myself ;; inspect the current house
+;         inspect self ;; inspect the current record
+;         user-message (word "10 records :  initialize the-house, selling-price for current record; initialize my-realtor for current house; update sales for my-realtor. ")
+;      ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
        hide-turtle  ;; hide the current record
 
        set the-house myself   ;; take the current house to be the-house of the current record
@@ -463,14 +519,32 @@ if scenario = "base-line" [
 
      ask my-realtor [ file-record the-record ]  ;; ask my-realtor to save the current record (the-record) into sales of my-realtor
 
-    if debug? or debug-setup = "10 records" [
 
-      inspect my-realtor
-      user-message (word "10 records :  initialize the-house, selling-price for current record; initialize my-realtor for current house; update sales for my-realtor. ")
-      stop-inspecting self
-      stop-inspecting the-record
-      stop-inspecting my-realtor
-    ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;    if debug? or debug-setup = "10 records" [
+;
+;      inspect my-realtor
+;      user-message (word "10 records :  initialize the-house, selling-price for current record; initialize my-realtor for current house; update sales for my-realtor. ")
+;      stop-inspecting self
+;      stop-inspecting the-record
+;      stop-inspecting my-realtor
+;    ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    if exp-options = "houseStory" [
+      if size = 3 [
+
+       show "I am having a record, and everyone too ! --------------------------------------------------"
+       show (word "see my record, update my-realtor, let my-realtor keep my record")
+       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+       show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
+       show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
+        show (word "my record's ID : " [who] of the-record ", has the-house : " [the-house] of the-record ", selling-price : " precision [selling-price] of the-record 1 )
+        show (word "my-realtor has stored my-record : " [sales] of my-realtor )
+      ]
+     ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
   ]
 
    ;; to experiment for verification
@@ -2755,8 +2829,8 @@ CHOOSER
 261
 exp-options
 exp-options
-"none" "track-owner-numbers" "track-houses-sales-numbers" "house" "realtor"
-0
+"none" "track-owner-numbers" "track-houses-sales-numbers" "house" "realtor" "houseStory"
+5
 
 PLOT
 2066
