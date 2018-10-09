@@ -1,89 +1,127 @@
 [Big Debt Crisis.pdf](Big Debt Crisis.pdf)
 
-## What is goodness or badness of debt
+## Debt and Credt : Goodness
 
 ```
-goodness-badness = what credit produces or how the debt is repaid
+credit = buying power = how much 
+debt = promise to pay back = how much 
+debtGood = what credit produces = a balanced or healthy state
+debtGood = how debt is repaid = a balanced or healthy state
 ```
 
-> Clearly, giving the ability to make purchases by providing credit is, in and of itself, a good thing, and not providing the power to buy and do good things can be a bad thing. the question of whether rapid credit/ debt growth is a good or bad thing hinges on what that credit produces and how the debt is repaid (i.e., how the debt is serviced).
+> **Credit** is the giving of buying power. This buying power is granted in exchange for a promise to pay it back, which is **debt**. Clearly, giving the ability to make purchases by providing credit is, in and of itself, a good thing, and not providing the power to buy and do good things can be a bad thing. For example, if there is very little credit provided for development, then there is very little **development**, which is a bad thing. The problem with debt arises when there is an **inability** to pay it back. Said differently, the question of whether rapid credit/ debt growth is a good or bad thing hinges on <u>what that credit produces</u> and <u>how the debt is repaid</u> (i.e., how the debt is serviced). p.9
 
-## No debt can be as bad as Too much bad debt
-
-```
-badness-no-debt = value-losing-opportunities = value-too-much-bad-debt
-```
-
-> too little credit/debt growth can create as bad or worse economic problems as having too much, with the costs coming in the form of foregone opportunities.
-
-## How to measure whether a debt is good or not 
+## No Debt : Bad
 
 ```
-if productivity-on-credit > threshold [ 
-   set sufficient-income-service-debt? true
-   set debt good-debt]
+humanNature = no-debt or little-debt
+humanNature = more-more-debt
+noDebtBad = foregone-opportunities 
+moreDebtBad = inability-payback
 ```
 
-> Generally speaking, because credit creates both spending power and debt, whether or not more credit is desirable depends on whether the borrowed money is used productively enough to generate sufficient income to service the debt.
+> Almost by definition, financially responsible people don’t like having much debt. I understand that perspective well because I share it.1 For my whole life, even when I didn’t have any money, I strongly preferred saving to borrowing, because I felt that the upsides of debt weren’t worth its downsides, which is a perspective I presume I <u>got from my dad</u>. I identify with people who believe that taking on a little debt is better than taking on a lot. But over time I learned that that’s not necessarily true, especially for society as a whole (as distinct from individuals), because those who <u>make policy</u> for society have controls that individuals don’t. From my experiences and my research, I have learned that too little credit/debt growth can create as bad or worse economic problems as having too much, with the costs coming in the <u>form of foregone opportunities</u>. p.9
 
-## When is subway debt good or bad?
+## More Credit is good?
 
 ```
-;; In what scenario, is subway debt a good one?
-let repayment-25y subway-revenue * (1 + revenue-growth-rate) ^ 25 - yearly-cost * (1+inflation-rate) ^ 25 + (social-economic-benefit-25y - gov-subsidies-25y)
-if debt - repayment-near > 0 and repayment-25y > debt * 1.02 ^ 25  [ set debt good-debt ] 
+if incomeCredit > serviceDebt  [ set moreCreditDesirable? true ]
 ```
 
-> Suppose that you, as a policy maker, choose to build a subway system that costs $1 billion. You finance it with debt that you expect to be paid back from revenue, but the economics turn out to be so much worse than you expected that only half of the expected revenues come in. The debt has to be written down by 50 percent. Does that mean you shouldn’t have built the subway? 
+> Generally speaking, because credit creates both spending power and debt, <u>whether or not more credit is desirable</u> depends on <u>whether the borrowed money is used productively enough to generate sufficient income to service the debt</u>. If that occurs, the resources will have been well allocated and both the lender and the borrower will benefit economically. If that doesn’t occur, the borrowers and the lenders won’t be satisfied and there’s a good chance that the resources were poorly allocated. p.9
 >
-> Rephrased, the question is whether the subway system is worth $500 million more than what was initially budgeted, or, on an annual basis, whether it is worth about 2 percent more per year than budgeted, supposing the subway system has a 25-year lifespan. Looked at this way, you may well assess that having the subway system at that cost is a lot better than not having the subway system. 
+> In assessing this for society as a whole, one should consider the secondary/indirect economics as well as the more primary/direct economics. For example, sometimes not enough money/credit is provided for such obviously <u>cost-effective things as **educating**</u> our children well (which would make them more productive, while reducing crime and the costs of incarceration), or <u>replacing inefficient **infrastructure**</u>, because of a fiscal conservativism that insists that borrowing to do such things is bad for society, which is not true.
+
+## Lending Standard
 
 ```
-;; In what scenario, is subway debt a really bad one?
-let repayment-25y subway-revenue * (1 + revenue-growth-rate) ^ 25 - yearly-cost * (1+inflation-rate) ^ 25 + (social-economic-benefit-25y - gov-subsidies-25y)
-if debt - repayment-near > 0 and repayment-25y < 0  [ set debt really-bad-debt ] 
-
-;; what is the ratio of really-bad-debt to GDP ?
-to-report bad-debt-to-gdp write-down-ratio bad-debt-total-debt-ratio
-   let bad-debt-value total-debt-value * bad-debt-total-debt-ratio
-   let bad-debt-write-down bad-debt-value * write-down-ratio
-   let GDP total-debt-value / 2
-   report bad-debt-write-down / GDP
-end 
-
-;; if bad debt is 20% of total debt, which has to lose 40% of value, total-debt is twice GDP
-let gdp-drop bad-debt-to-gdp 40% 20% ;; then value to lose is equal to 16% GDP
-
-;; to drop 16% of GDP within a year, is not tolerable; but drop 1% of GDP per year for 16 years, is tolerable. But whether policy maker will spread loss depend on two factors 
-ask really-bad-debt [
-  if debt-currency-control > threshold and influence-over-creditor-debtor > threshold [ set tolerable true ]
-  ]
+ifelse lendingTight? [ set foregoneOpportunity? true] [ set seriousDebtProblem? true ]
 ```
 
-> downside risks of having a significant amount of debt depends a lot on the willingness and the ability of policy makers to spread out the losses arising from bad debts. I have seen this in all the cases I have lived through and studied. Whether policy makers can do this depends on two factors: 1) whether the debt is denominated in the currency that they control and 2) whether they have influence over how creditors and debtors behave with each other.
+> I want to be clear that credit/debt that produces enough economic benefit to pay for itself is a good thing. But sometimes the <u>trade-offs</u> are harder to see. If <u>lending standards</u> are so tight that they require a near certainty of being paid back, that may lead to fewer debt problems but <u>too little development</u>. If the lending standards are looser, that could lead to more development but could also create <u>serious debt problems</u> down the road that erase the benefits. Let’s look at this and a few other common questions about debt and debt cycles. p.9
+
+## Good vs Bad vs Tolerable
+
+```
+budget = credit = debt = 1 billion
+budget - incomeSubway = 500mBadDebt
+if SubwaySystem > 500m [ set goodDecisionBuildSubway? true ]
+if spend2PctYearBearable? [ set (500m = 20m25yr = subwaySystem25yr = good) true ]
+```
+
+> Suppose that you, as a policy maker, choose to <u>build a subway system</u> that costs $1 billion. You finance it with debt that you expect to be paid back from revenue, but the economics turn out to be so much worse than you expected that only half of the expected revenues come in. The debt has to be <u>written down by 50 percent</u>. Does that mean you <u>shouldn’t have built the subway?</u> 
+>
+> Rephrased, the question is <u>whether the subway system is worth $500 million more</u> than what was initially budgeted, or, on an annual basis, <u>whether it is worth about 2 percent more per year than budgeted, supposing the subway system has a 25-year lifespan</u>. Looked at this way, you may well assess that having the subway system at that cost is a lot better than not having the subway system. 
+>
+> To give you an idea of what that might mean for an economy as a whole, really bad debt losses have been when roughly 40 percent of a loan’s value couldn’t be paid back. Those bad loans amount to about 20 percent of all the outstanding loans, so the losses are equal to about 8 percent of total debt. That total debt, in turn, is equal to about 200 percent of income (e.g., GDP), so the shortfall is roughly equal to 16 percent of GDP. If that cost is “socialized” (i.e., <u>borne by the society as a whole via fiscal and/or monetary policies</u>) and spread over 15 years, it would amount to about 1 percent per year, which is tolerable. Of course, if not spread out, the costs would be intolerable. For that reason, I am asserting that the downside risks of having a significant amount of debt depends a lot on the <u>willingness and the ability of policy makers</u> to spread out the losses arising from bad debts. I have seen this in all the cases I have lived through and studied. Whether policy makers can do this depends on two factors: 1) whether the debt is <u>denominated in the currency</u> that they control and 2) whether they have <u>influence over how creditors and debtors</u> behave with each other. p.10
+>
+> ```
+> GDP = 100
+> TotalDebt = 200 = 2 * GDP
+> BadDebt = TotalDebt * 0.2
+> WriteOff = BadDebt * 0.4 = 200 * 0.2 * 0.4 = 16 = 16% GDP
+> spreadOver15Years = 1% GDP/year = Tolerable by TaxPayers
+> ```
 
 ## Are Debt cycles inevitable ?
 
 ```
-;; Debt cycles are inevitable ?
-if human-short-sightedness > threshold1 and political-short-sightedness > threshold2 [ set credit-loose true]
-;; maybe 95% time human and political short-sightedness is greater than the thresholds
-;; how to model human-short-sightedness and political-short-sightedness?
+inevitability = debt-necessity + humanNature(greedy and fearful) = emergent phenomena
+;; emergence patterns shouldn't and can't be coded into agents' rules 
+;; how can simple rules reproduce the final patterns of greed and fear?
+if income > debtService [ moreProduction => moreDebt ]
+if income > debtService and ticks > somePeriods [  moreCollaterals => moreDebts ]
+if interestRateRise? [ set incomeShock? true]
+if incomeShock? [ debtServiceHigh > income ] -->
+if collatoralValueDecrease? [ debtHigh > collatoralValue ==> set DebtRollOverDenied? True]
+;; in fact, examine the process, Human greed and fear are easy to say, but the agent behavior rules are more fundamental and hard to change. 
 ```
 
-> Throughout history only a few well-disciplined countries have avoided debt crises. While policy makers generally try to get it right, more often than not they err on the side of being too loose with credit because the near-term rewards (faster growth) seem to justify it. It is also politically easier to allow easy credit (e.g., by providing guarantees, easing monetary policies) than to have tight credit. That is the main reason we see big debt cycles.
+> Throughout history only a few <u>well-disciplined</u> countries have avoided debt crises. While policy makers generally try to get it right, more often than not they err on the side of being <u>too loose</u> with credit because the near-term rewards (faster growth) seem to justify it. It is also <u>politically easier</u> to allow easy credit (e.g., by providing guarantees, easing monetary policies) than to have tight credit. That is the main reason we see big debt cycles.
 
-## Why do debt crises come in cycles?
+## Borrow Money = Create Cycles
 
 ```
-set total-debt = borrowed + borrowed * interest-rate
-if asset-value-on-borrowed * profit-growth > borrowed * interest-rate [ set debt-sustainable true]
-if income < cost-of-loans [ set debt-sustainable false]
+BorrowMoney = spendMoreThanIncomeToday (Joy) -> spendLessThanIncomeFuture = RepayDebt (Pain, very hard to sustain)
 ```
 
-> You’re not just borrowing from your lender; you are borrowing from your future self. Essentially, you are creating a time in the future in which you will need to spend less than you make so you can pay it back. <u>The pattern of borrowing, spending more than you make, and then having to spend less than you make very quickly resembles a cycle.</u> This is as true for a national economy as it is for an individual. Borrowing money sets a mechanical, predictable series of events into motion.
+> To put these complicated matters into very simple terms, <u>you create a cycle virtually anytime you borrow money</u>. Buying something you can’t afford means spending more than you make. You’re not just borrowing from your lender; you are borrowing from your future self. Essentially, <u>you are creating a time in the future in which you will need to spend less than you make so you can pay it back</u>. The pattern of borrowing, spending more than you make, and then having to spend less than you make very quickly resembles a cycle. This is as true for a national economy as it is for an individual. Borrowing money sets a mechanical, predictable series of events into motion.
 >
-> <u>Lending naturally creates self-reinforcing upward movements that eventually reverse to create self-reinforcing downward movements that must reverse in turn. During the upswings, lending supports spending and investment, which in turn supports incomes and asset prices; increased incomes and asset prices support further borrowing and spending on goods and financial assets. The borrowing essentially lifts spending and incomes above the consistent productivity growth of the economy. Near the peak of the upward cycle, lending is based on the expectation that the above-trend growth will continue indefinitely. But, of course, that can’t happen; eventually income will fall below the cost of the loans.</u>
+> If you understand the game of Monopoly®, you can pretty well understand how credit cycles work on the level of a whole economy. Early in the game, people have a lot of cash and only a few properties, so it pays to convert your cash into property. As the game progresses and players acquire more and more houses and hotels, more and more cash is needed to pay the rents that are charged when you land on a property that has a lot of them. Some players are forced to sell their property at discounted prices to raise that cash. So early in the game, “property is king” and later in the game, “cash is king.” Those who play the game best understand how to hold the right mix of property and cash as the game progresses.
+
+```
+set previousIncome 0 
+set previousAssetPrice 0
+to go
+    if income > previousIncome and assetPrice > previousAssetPrice and income > debtSevice [
+        set credit     credit + amount
+        set debt       debt + amount 
+        set spending   spending + amount
+        set income     income + amount 
+        set assetPrice assetPrice + amount 
+        set previousIncome income 
+        set previousAssetPrice assetPrice
+    ]
+    if rateUpShock? [ 
+       set rate rate * (1 + ratio)  
+       set debtService debtService * (1 + ratio) 
+    ]
+    if income < previousIncome and assetPrice < previousAssetPrice and income < debtSevice [
+        set credit     0
+		;; debt stays same
+        set spending   spending - amount
+        set income     income - amount 
+        set assetPrice assetPrice - amount 
+        set previousIncome income 
+        set previousAssetPrice assetPrice
+    ]
+    
+end
+```
+
+> Now, let’s imagine how this Monopoly® game would work if we allowed the bank to make loans and take deposits. Players would be able to borrow money to buy property, and, rather than holding their cash idly, they would deposit it at the bank to earn interest, which in turn would provide the bank with more money to lend. Let’s also imagine that players in this game could buy and sell properties from each other on credit (i.e., by promising to pay back the money with interest at a later date). If Monopoly® were played this way, it would provide an almost perfect model for the way our economy operates. <u>The amount of debt-financed spending on hotels would quickly grow to multiples of the amount of money in existence</u>. Down the road, the debtors who hold those hotels will become short on the cash they need to pay their rents and service their debt. The bank will also get into trouble as their depositors’ rising need for cash will cause them to withdraw it, even as more and more debtors are falling behind on their payments. If nothing is done to intervene, both banks and debtors will go broke and the economy will contract. Over time, as these cycles of expansion and contraction occur repeatedly, the conditions are created for a big, long-term debt crisis.
+>
+> <u>Lending naturally creates self-reinforcing upward movements that eventually reverse to create self-reinforcing downward movements that must reverse in turn. During the upswings, lending supports spending and investment, which in turn supports incomes and asset prices; increased incomes and asset prices support further borrowing and spending on goods and financial assets. The borrowing essentially lifts spending and incomes above the consistent productivity growth of the economy. Near the peak of the upward cycle, lending is based on the expectation that the above-trend growth will continue indefinitely. But, of course, that can’t happen; eventually income will fall below the cost of the loans.</u> :1st_place_medal: 
 
 ```
 households-payments = land-cost + realtor-cost + construction-cost = gov-income + realtor-income + workers-business-income = borrowing + interest + profit-or-income
