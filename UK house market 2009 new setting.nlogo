@@ -274,10 +274,10 @@ if scenario = "base-line" [
      ask one-of houses [
         set size 3
         show "I am a house just created!----------------------------------------------------------------------------------------------------"
-        show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+        show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " [who] of local-realtors  ", my-realtor : " my-realtor )
         show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
         show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
-
+        print ""
      ]
   ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -294,7 +294,8 @@ if scenario = "base-line" [
   if exp-options = "houseStory" and not member? 3 [size] of occupied-houses
         [
         show "I am not selected to be the occupied houses at first. ----------------------------------------------------------------------------------------------------"
-      ]
+        print ""
+  ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ask occupied-houses [  ;; define each home-owner's properties
@@ -354,10 +355,15 @@ if scenario = "base-line" [
     if exp-options = "houseStory" [
       if size = 3 [
 
-       show "I am selected to be an occupied house, and an owner is born to me ! --------------------------------------------------"
-       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+       show "I am selected to be an occupied house, and an owner is born to me, and now I am not for sale! --------------------------------------------------"
+        show (word " my sale-price = owner's mortgage (" precision [mortgage] of my-owner 1 ") + deposit (" precision ([mortgage] of my-owner * ( 100 /  MaxLoanToValue - 1 )) 1 ") = " precision sale-price 1)
+        show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " [who] of local-realtors  ", my-realtor : " my-realtor )
        show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
        show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
+       print "----------------------"
+       let owner-me [my-owner] of one-of houses with [size = 3]
+        show (word "my-owner : " owner-me ", income : " precision [income ] of owner-me 1 ", capital : " precision [capital] of owner-me 1 ", mortgage : "precision [mortgage] of owner-me 1 ", my-house : " [my-house] of owner-me)
+       print ""
       ]
      ]
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -413,11 +419,12 @@ if scenario = "base-line" [
     if exp-options = "houseStory" [
       if size = 3 [
 
-       show "I am an empty house to get a sale-price ! --------------------------------------------------"
+       show "I am an empty house (stay for-sale) and need to get a sale-price ! --------------------------------------------------"
        show (word "my sale-price is determined by all occupied sale-prices : " not any? local-houses ", or just local-occupied-sale-prices : " any? local-houses )
-       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " [who] of local-realtors  ", my-realtor : " my-realtor )
        show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
        show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
+      print ""
       ]
      ]
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -446,9 +453,10 @@ if scenario = "base-line" [
 
        show "I am updating my house quality, everyone too ! --------------------------------------------------"
        show (word "quality is sale-price / medianPriceOfAllHouses  ")
-       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " [who] of local-realtors  ", my-realtor : " my-realtor )
        show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
        show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
+      print ""
       ]
      ]
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -536,11 +544,12 @@ if scenario = "base-line" [
 
        show "I am having a record, and everyone too ! --------------------------------------------------"
        show (word "see my record, update my-realtor, let my-realtor keep my record")
-       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " local-realtors ", my-realtor : " my-realtor )
+       show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " [who] of local-realtors  ", my-realtor : " my-realtor )
        show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
        show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
         show (word "my record's ID : " [who] of the-record ", has the-house : " [the-house] of the-record ", selling-price : " precision [selling-price] of the-record 1 )
         show (word "my-realtor has stored my-record : " [sales] of my-realtor )
+      print ""
       ]
      ]
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -820,10 +829,11 @@ to go
   set nOwnersOffered 0
   set meanIncomeForceOut 0 ;; get mean income of owners who are forced out
 
-   if debug? or debug-go = "s0 go-structure" [
-     user-message (word "s0 go-structure : set simulation duration, half time bring in a scenario, one step per go, 3 conditions to stop simulation. Now let's run! ")
-
-  ]
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;   if debug? or debug-go = "s0 go-structure" [
+;     user-message (word "s0 go-structure : set simulation duration, half time bring in a scenario, one step per go, 3 conditions to stop simulation. Now let's run! ")
+;  ]
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; basic loop
    if ticks > 400 [
@@ -874,7 +884,10 @@ to step
   let n-owners count owners  ;; take a count of total owners at the moment
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-go = "s1 count-owners" [ user-message (word "s1 count-owners : to start, count total number of all owners = " n-owners) ]
+  if exp-options = "houseStory" [
+    show (word "I am at step: " ticks ", count total owners : " n-owners)
+    print ""
+  ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -885,8 +898,12 @@ to step
   set interestPerTick InterestRate / ( TicksPerYear * 100 )
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-go = "s2 interestPerTick" [ user-message ( word "s2 interestPerTick : from interest per year to interest per tick"  ) ]
+  if exp-options = "houseStory" [
+    show (word "The year interest : " InterestRate ", converted to interstPerTick: " interestPerTick)
+    print ""
+  ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
   ;; add cyclical variation to interest ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -894,43 +911,54 @@ to step
     set interestPerTick interestPerTick * (1 + (CycleStrength / 100 ) * sin ( 36 * ticks / TicksPerYear )) ]
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-go = "s3 interest-Cycle"
-    [ user-message (word "s3 interest-Cycle : add cyclical influence to interestPerTick. see the figure. " ) ]
+  if exp-options = "houseStory" [
+    show (word "Cyclical variation on interestRate is introduced? : " (CycleStrength > 0) ", how big is the variation : " CycleStrength )
+    print ""
+  ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
   ;; inflation drive up income ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ; add inflation to salary, at inflation rate / TicksPerYear
-  if Inflation > 0 [
+  ifelse Inflation > 0 [
 
     ask owners [
 
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s4 inflation-income" [
-         inspect self
-         user-message ( word "4 inflation-income : inflation will drive up income accordingly. " precision income 1)
-      ]
+;      if debug? or debug-go = "s4 inflation-income" [
+;         inspect self
+;         user-message ( word "4 inflation-income : inflation will drive up income accordingly. " precision income 1)
+;      ]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       set income income * (1 + Inflation / ( TicksPerYear * 100 )) ;; every tick, income stay the same or varied by inflation
 
+
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s4 inflation-income" [
-         user-message ( word "s4 inflation-income : inflation will drive up income accordingly. " precision income 1)
-         stop-inspecting self
+      if exp-options = "houseStory" and is-turtle? my-house and [size] of my-house = 3 [
+        show (word "I am me : " my-house ", my-owner is : " self ", its income is affected by inflation. ----------------------------- " )
+        show (word "Inflation is introduced? : " (Inflation > 0) ", how much is the inflation : " Inflation ", income is raised upto : " precision income 1)
+        print ""
       ]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
     ]
-  ]
 
+  ]
+  [
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    if exp-options = "houseStory"  [
+      show (word "Inflation is introduced? : " (Inflation > 0) ", there is no effect on income by inflation. ----------------------------" )
+      print ""
+    ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ]
 
   ;; get all the owners with houses ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   let owner-occupiers owners with [ is-house? my-house ]
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-go = "s5 owner-occupiers" [ user-message (
-    word "s5 owner-occupiers : bring all owners with houses under variable `owner-occupiers`. the count = " count owner-occupiers ) ]
+;  if debug? or debug-go = "s5 owner-occupiers" [ user-message (
+;    word "s5 owner-occupiers : bring all owners with houses under variable `owner-occupiers`. the count = " count owner-occupiers ) ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -951,11 +979,26 @@ to step
   ask downshocked [ set income income * (1 - income-shock / 100 ) ]  ;; ask each downshocked to drop income by 20%
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-go = "s6 income-shock" [
-    user-message (
-      word "s6 income-shock : each tick, a Shocked% of home-owners got income shock = " Shocked
-      word "; half income rise income-shock% the other drop income-shock% = " income-shock
-    )
+;  if debug? or debug-go = "s6 income-shock" [
+;    user-message (
+;      word "s6 income-shock : each tick, a Shocked% of home-owners got income shock = " Shocked
+;      word "; half income rise income-shock% the other drop income-shock% = " income-shock
+;    )
+;  ]
+
+    if exp-options = "houseStory" [
+       ask houses with [size = 3] [
+           show (word "My breed is " breed ", and I am checking on my-owner's incomeShock situation ---------------------------------------------------" )
+           show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " [who] of local-realtors  ", my-realtor : " my-realtor )
+           show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
+           show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
+
+           if member? my-owner upshocked [  show (word "my-owner belongs to the upshocked group, my owner's income has increased by " income-shock "% upto : " precision [income] of my-owner 1 )]
+           if member? my-owner downshocked [ show (word "my-owner belongs to the downshocked group, my owner's income has decreased by " income-shock "% downto : " precision [income] of my-owner 1 )]
+           if not member? my-owner shocked-owners [ show (word "my-owner income has not been shocked, and still at  "  precision [income] of my-owner 1 )]
+       ]
+
+       print ""
   ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -972,6 +1015,14 @@ to step
 
       set nUpShocked nUpShocked + 1   ;; add 1 to `nUpShocked`, meaning one more owner selling house due to income rise
 
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      if exp-options = "houseStory" and [size ] of my-house = 3 [
+         show "I am checking on my-owner's repayment capacity :------------------------------------------------------- "
+         show (word "my-owner now is more than twice capable of repaying the mortgage on me (repayment/income " ratio  "vs affordability "Affordability " )" )
+         show "my-owner puts me on market for-sale so that it can buy a more expensive house. "
+      ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
     ]
 
    if ratio > Affordability / 50 [   ;; if ratio > 2 * Affordability % , meaning yearly-repayment is way to heavy for owners to bear, owner is poor
@@ -980,14 +1031,33 @@ to step
 
       set nDownShocked nDownShocked + 1  ;; add 1 to `nDownShocked`, meaning one more owner selling house due to income drop
 
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      if exp-options = "houseStory" and [size ] of my-house = 3  [
+        show "I am checking on my-owner's repayment capacity : ---------------------------------------------------------"
+        show (word "my-owner now is less than half capable of repaying the mortgage on me (repayment/income " ratio  "vs affordability "Affordability " )" )
+        show "so, my-owner puts me on market for-sale so that it can buy a cheaper house. "
+      ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
     ]
+
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      if exp-options = "houseStory" and [size ] of my-house = 3  [
+          show "I am checking on my-owner's repayment capacity : -------------------------------------------------------"
+          show (word "my-owner's income or repayment ability (repayment/income " precision (ratio * 100) 1" vs affordability " Affordability " ) is Not affected big enough to put me for-sale. ")
+      ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
    ]
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   if debug? or debug-go = "s7 shock-sale" [
-     user-message (
-        word "s7 shock-sale : after income-shock, only owners whose repayment < half of affordability, will put house on sale due to income rise; "
-        word " only owners whose repayment > twice of affordability,  will put house on sale due to income drop " "."
-      )]
+;   if debug? or debug-go = "s7 shock-sale" [
+;     user-message (
+;        word "s7 shock-sale : after income-shock, only owners whose repayment < half of affordability, will put house on sale due to income rise; "
+;        word " only owners whose repayment > twice of affordability,  will put house on sale due to income drop " "."
+;      )]
+
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -2038,7 +2108,7 @@ Inflation
 Inflation
 0
 20
-0.0
+0.2
 0.1
 1
 % pa
@@ -2053,7 +2123,7 @@ InterestRate
 InterestRate
 0
 20
-3.0
+5.0
 0.1
 1
 % pa
