@@ -106,6 +106,7 @@ breed [houses house ]      ; a house, may be occupied and may be for sale
 breed [owners owner ]      ; a household, may be living in a house, or may be seeking one
 breed [realtors realtor ]  ; an estate agent
 breed [records record ]    ; a record of a sale, kept by realtors
+;breed [exits exit]         ;; avoid to use die or nobody, put dead agents into this breed
 
 houses-own [
   my-owner            ; the owner who lives in this house
@@ -993,9 +994,9 @@ to step
            show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
            show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
 
-           if member? my-owner upshocked [  show (word "my-owner belongs to the upshocked group, my owner's income has increased by " income-shock "% upto : " precision [income] of my-owner 1 )]
-           if member? my-owner downshocked [ show (word "my-owner belongs to the downshocked group, my owner's income has decreased by " income-shock "% downto : " precision [income] of my-owner 1 )]
-           if not member? my-owner shocked-owners [ show (word "my-owner income has not been shocked, and still at  "  precision [income] of my-owner 1 )]
+           if my-owner != nobody and member? my-owner upshocked [  show (word "my-owner belongs to the upshocked group, my owner's income has increased by " income-shock "% upto : " precision [income] of my-owner 1 )]
+           if my-owner != nobody and member? my-owner downshocked [ show (word "my-owner belongs to the downshocked group, my owner's income has decreased by " income-shock "% downto : " precision [income] of my-owner 1 )]
+           if my-owner != nobody and not member? my-owner shocked-owners [ show (word "my-owner income has not been shocked, and still at  "  precision [income] of my-owner 1 )]
        ]
 
        print ""
@@ -1045,6 +1046,7 @@ to step
       if exp-options = "houseStory" and [size ] of my-house = 3  [
           show "I am checking on my-owner's repayment capacity : -------------------------------------------------------"
           show (word "my-owner's income or repayment ability (repayment/income " precision (ratio * 100) 1" vs affordability " Affordability " ) is Not affected big enough to put me for-sale. ")
+          print ""
       ]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1068,13 +1070,13 @@ to step
   ask n-of (ExitRate * n-owners / 100) owners with [ is-house? my-house ] [  ;; ask randomly select (ExitRate% of all owners) number of home-owners to do ...
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    if debug? or debug-go = "s8 owners-gone" [
-       inspect self
-       inspect my-house
-       user-message (
-          word " s8 owners-gone : watch this owner to sell and leave. "
-          word " it is one of = " round (ExitRate * n-owners / 100)
-      )]
+;    if debug? or debug-go = "s8 owners-gone" [
+;       inspect self
+;       inspect my-house
+;       user-message (
+;          word " s8 owners-gone : watch this owner to sell and leave. "
+;          word " it is one of = " round (ExitRate * n-owners / 100)
+;      )]
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     ask my-house [
@@ -1082,20 +1084,44 @@ to step
       put-on-market  ;; put itself on market
       set my-owner nobody
 
+;      set [breed] of my-owner exits
+
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      if exp-options = "houseStory" and size = 3  [
+          show "My-owner exit the city due to death or job relocation, I am for-sale now : -------------------------------------------------------"
+          show (word "my-owner's status now : " my-owner ", my for-sale status : " for-sale? ", and my price : " (precision sale-price 1 ) )
+          print ""
+      ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
       ]
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    if debug? or debug-go = "s8 owners-gone" [ user-message (word " watch the changes " )
-        stop-inspecting self
-        stop-inspecting my-house
-    ]
+;    if debug? or debug-go = "s8 owners-gone" [ user-message (word " watch the changes " )
+;        stop-inspecting self
+;        stop-inspecting my-house
+;    ]
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     set nExit nExit + 1
 
     die
+;    set breed exits  ;; make the dead owner to be an exit breed
 
   ]
 
+       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  if exp-options = "houseStory" [
+     ask  one-of houses with [size = 3] [
+        if my-owner != nobody [
+          show (word "There are " (ExitRate * n-owners / 100) " owners exit the city due to death or job relocation, my owner is fine : -------------------------------------------------------")
+          show (word "my-owner's status now : " my-owner ", my for-sale status : " for-sale? ", and my price : " (precision sale-price 1 ) )
+          show (word "There are " (EntryRate * n-owners / 100) " number of new owners without houses come into the city. ")
+          print ""
+      ]
+    ]
+  ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
   ;; new comers ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1109,13 +1135,13 @@ to step
       set size 1 ;; to make new comers differ from other owners
 
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s9 new-comers" [
-
-        inspect self  ;; inspect one of new comer
-        follow-me  ;; watch it
-
-        user-message (word "s9 new-comers : create a new comer and watch its properties " )
-      ]
+;      if debug? or debug-go = "s9 new-comers" [
+;
+;        inspect self  ;; inspect one of new comer
+;        follow-me  ;; watch it
+;
+;        user-message (word "s9 new-comers : create a new comer and watch its properties " )
+;      ]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       set size 0.7  ;; make them visible but not too big
@@ -1125,10 +1151,10 @@ to step
       hide-turtle  ;; new comers have no houses, so they are nowhere to be seen
 
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s9 new-comers" [
-        user-message (word "s9 new-comers, now it is hidden. " )
-        stop-inspecting self
-      ]
+;      if debug? or debug-go = "s9 new-comers" [
+;        user-message (word "s9 new-comers, now it is hidden. " )
+;        stop-inspecting self
+;      ]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       set nEntry nEntry + 1
@@ -1155,7 +1181,10 @@ to step
             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
             set nDiscouraged nDiscouraged + 1
+
             die
+;            set breed exits  ;; make dead owner an exit breed
+
           ]
      ]
   ]
@@ -1190,7 +1219,10 @@ to step
     ask my-house [ set my-owner nobody ]  ;; ask its house to set owner to be nobody
 
     set meanIncomeForceOut meanIncomeForceOut + income  ;; to sum up all income of the owners who are forced out
-    die  ;; ask the owner to die
+
+        die  ;; ask the owner to die
+;    set breed exits
+
     ]
     ifelse  nForceOut > 0 [ set meanIncomeForceOut meanIncomeForceOut / nForceOut ] [ set meanIncomeForceOut 0]  ;; take the mean
 ;    if meanIncomeForceOut > 0 [user-message( word " meanIncomeForceOut " meanIncomeForceOut ) ]
@@ -1819,6 +1851,7 @@ to demolish
   set nDemolished nDemolished + 1 ;; add 1 upon nDemolished
 
   die  ;; make the house die
+;  set breed exits
 end
 
 
@@ -2123,7 +2156,7 @@ InterestRate
 InterestRate
 0
 20
-5.0
+7.0
 0.1
 1
 % pa
@@ -2871,7 +2904,7 @@ CHOOSER
 scenario
 scenario
 "base-line" "raterise 3" "raterise 7" "raterise 10" "influx" "influx-rev" "poorentrants" "ltv"
-4
+2
 
 PLOT
 1666
