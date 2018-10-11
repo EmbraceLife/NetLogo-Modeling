@@ -1174,10 +1174,10 @@ to step
          if homeless > maxHomelessPeriod [ ;; if homeless duration is beyond limit, this owner will move out of the city (agent die)
 
             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-            if debug? or debug-go = "s10 discouraged-move-away" [
-               inspect self
-               user-message ( word " this owner's homeless duration is " homeless )
-            ]
+;            if debug? or debug-go = "s10 discouraged-move-away" [
+;               inspect self
+;               user-message ( word " this owner's homeless duration is " homeless )
+;            ]
             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
             set nDiscouraged nDiscouraged + 1
@@ -1188,6 +1188,18 @@ to step
           ]
      ]
   ]
+
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  if exp-options = "houseStory" [
+     ask  one-of houses with [size = 3] [
+
+          show (word "There are " nDiscouraged " owners exit the city due to being homeless too long : -------------------------------------------------------")
+          show (word "I am a house with ID " who ", and my-owner is " my-owner )
+          print ""
+
+    ]
+  ]
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
@@ -1205,21 +1217,54 @@ to step
 
   set nForceOut count ForceOut  ;; count the number of owners have forced out of city
 
+
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  if exp-options = "houseStory" [
+     let house-me  one-of houses with [size = 3]
+     ask house-me [
+      ifelse not is-turtle? my-owner [ show " I don't have an owner, so no problem like repayment > income to be forced out." ]
+       [
+          ifelse not for-sale? [ show (word "my-owner's income is not too high or low to sell house-me for another. my for-sale state : " for-sale?) ]
+          [
+            if not member? my-owner ForceOut [
+              ask my-owner [
+                show (word "My owner's income : " income " >  the repayment : " (repayment * TicksPerYear) ", my owner won't be forced out of house-me: -------------------------------------------------------")
+                print ""
+                ]
+            ]
+          ]
+      ]
+    ]
+  ]
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;   meanIncomeForceOut  ;; get their mean income
   ask ForceOut [  ;; ask each of the forced out people
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    if debug? or debug-go = "s11 drop-sale" [
-        user-message (word "s11 drop-sale : this owner's yearly repayment = " (repayment * 4 )
-                      word ", the owner's income is only " income
-                      word ", this owner can't repay mortgage, forced out" ". "
-      )
-    ]
+;    if debug? or debug-go = "s11 drop-sale" [
+;        user-message (word "s11 drop-sale : this owner's yearly repayment = " (repayment * 4 )
+;                      word ", the owner's income is only " income
+;                      word ", this owner can't repay mortgage, forced out" ". "
+;      )
+;    ]
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     ask my-house [ set my-owner nobody ]  ;; ask its house to set owner to be nobody
 
     set meanIncomeForceOut meanIncomeForceOut + income  ;; to sum up all income of the owners who are forced out
 
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    if exp-options = "houseStory" [
+       let house-me  one-of houses with [size = 3]
+       ask house-me [
+           show (word "My owner's income : " income " <  the repayment : " (repayment * TicksPerYear) ", my owner is forced out and die: -------------------------------------------------------")
+           show (word "Now, my-owner becomes :" my-owner )
+          print ""
+      ]
+    ]
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         die  ;; ask the owner to die
 ;    set breed exits
 
@@ -1236,10 +1281,10 @@ to step
                                                      ;; any? patches with  = do these patches exist or not
 
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s12 new-houses" [
-
-        user-message (word "s12 new-houses : as long as there is an empty land, build a house, until the number is met. " floor (count houses * HouseConstructionRate / 100)
-      ) ]
+;      if debug? or debug-go = "s12 new-houses" [
+;
+;        user-message (word "s12 new-houses : as long as there is an empty land, build a house, until the number is met. " floor (count houses * HouseConstructionRate / 100)
+;      ) ]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       build-house   ;; this function will automatically find an empty land to build a house on
