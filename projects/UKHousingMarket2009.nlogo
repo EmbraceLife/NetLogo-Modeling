@@ -1222,9 +1222,16 @@ to step
   if exp-options = "houseStory" [
      let house-me  one-of houses with [size = 3]
      ask house-me [
-      ifelse not is-turtle? my-owner [ show " I don't have an owner, so no problem like repayment > income to be forced out." ]
+      ifelse not is-turtle? my-owner [
+
+        show " I don't have an owner, so no problem like repayment > income to be forced out."
+        print ""
+      ]
        [
-          ifelse not for-sale? [ show (word "my-owner's income is not too high or low to sell house-me for another. my for-sale state : " for-sale?) ]
+          ifelse not for-sale? [
+             show (word "my-owner's income is not too high or low to sell house-me for another. my for-sale state : " for-sale?)
+             print ""
+        ]
           [
             if not member? my-owner ForceOut [
               ask my-owner [
@@ -1293,15 +1300,20 @@ to step
 
   ]
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  if exp-options = "houseStory" [show (word "There are " (precision (count houses * HouseConstructionRate / 100) 1) " of new houses are built. Now total houses : " count houses ) print ""]
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
   ;; update 0-quality houses to [0.3, 3] ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ask houses with [ quality = 0 ] [ ;; ask each house with quality = 0
 
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s13 remove-0-quality" [
-         inspect self
-      user-message (word "s13 remove-0-quality : see the quality changes. In total 0-quality houses number = " count houses with [ quality = 0 ] )]
+;      if debug? or debug-go = "s13 remove-0-quality" [
+;         inspect self
+;      user-message (word "s13 remove-0-quality : see the quality changes. In total 0-quality houses number = " count houses with [ quality = 0 ] )]
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       let houses-around-here other houses in-radius Locality
@@ -1319,83 +1331,109 @@ to step
       if quality < 0.3 [set quality 0.3]  ;; quality has lower limit to be 0.3
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    if debug? or debug-go = "s13 remove-0-quality" [
-      user-message (word "s13 remove-0-quality : see the quality changes. ")
-      stop-inspecting self
-    ]
+;    if debug? or debug-go = "s13 remove-0-quality" [
+;      user-message (word "s13 remove-0-quality : see the quality changes. ")
+;      stop-inspecting self
+;    ]
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ]
 
-
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   if exp-options = "houseStory" [ show "update 0 quality houses (newly built) to property quality values between 0.3 and 3" print ""]
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
   ;; value-houses ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; initially, house sale-price is added up by mortgage and deposit in setup
   ;; once a house put on sale, sale-price, my-realtor (house) , average-price (realtor), median price for all houses on sale, are to be updated.
+  ;; because sellers will ask all local-realtors to value the house again and the seller will choose my-realtor again to update the sale-price
 
-  let houses-for-sale houses with [ for-sale? ] ;; find all the houses for sale
+  let houses-for-sale houses with [ for-sale? ]                                  ;; find all the houses for sale
 
-  if any? houses-for-sale [  ;; if these houses exist
-
-    ask houses-for-sale with [ date-for-sale = ticks ] [  ;; ask each of those houses which are just on sale from now on
-
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s14 value-houses" [
-
-        inspect self
-
-        user-message (word "s14 value-houses : valuation current house, compare changes of house and realtor properties. ")]
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-      set my-realtor max-one-of local-realtors [ valuation myself ]  ;; set the realtor gives the current house the highest valuation to be my-realtor
-
-      set sale-price [ valuation myself ] of my-realtor ;; take the highest value valuation price as sale-price of the current house
-
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s14 value-houses" [
-
-         user-message (word "s14 value-houses : sale-price, my-realtor are updated. ")
-
-        stop-inspecting self ]
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    ]
-
-
-    ; update the average-price of each realtor
-    ask realtors [ ;; ask each realtor
-
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s15 realtor-average-price" [
-
-        inspect self
-
-        user-message (word "s15 realtor-average-price : update realtor's average-price. " )]
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-
-      let my-houses-for-sale houses-for-sale with [ member? myself local-realtors ];; get all houses under this realtor
-
-      if any? my-houses-for-sale [ set average-price median [ sale-price ] of my-houses-for-sale ]
-      ;; if these houses exist, take their median price as the realtor's average-price for its all houses
-
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      if debug? or debug-go = "s15 realtor-average-price" [
-
-        user-message (word "s15 realtor-average-price : average-price is updated. ")
-
-        stop-inspecting self
+  if exp-options = "houseStory" [
+    let house-me one-of houses with [size = 3]
+    ask house-me [
+      ifelse not for-sale? [show "I am not for sale. So, my sale-price needs not re-valuation from realtors. "  print ""]
+      [
+        if any? houses-for-sale and not member? self houses-for-sale with [ date-for-sale = ticks ]
+            [show "I am on-sale, just not put on market recently. so, no need to re-valuate my sale-price." print ""]
       ]
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ]
-
-    set medianPriceOfHousesForSale median [sale-price] of houses-for-sale  ;; update median price of all houses on sale
   ]
 
-  paint-houses  ;; update colors after prices are updated
+  if any? houses-for-sale [                                                      ;; if these houses exist
+
+    ask houses-for-sale with [ date-for-sale = ticks ] [                         ;; ask each of those houses which are just on sale from now on
+
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;      if debug? or debug-go = "s14 value-houses" [
+;
+;        inspect self
+;
+;        user-message (word "s14 value-houses : valuation current house, compare changes of house and realtor properties. ")]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+      set my-realtor max-one-of local-realtors [ valuation myself ]               ;; set the realtor gives the current house the highest valuation to be my-realtor
+
+      set sale-price [ valuation myself ] of my-realtor                           ;; take the highest value valuation price as sale-price of the current house
+
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;      if debug? or debug-go = "s14 value-houses" [
+;
+;         user-message (word "s14 value-houses : sale-price, my-realtor are updated. ")
+;
+;        stop-inspecting self ]
+      if exp-options = "houseStory" and size = 3 [
+         show "I am newly put onto market, my sale-price should be re-valuated by all local realtors. ------------------------------"
+         show (word " My sale-price is updated : " precision sale-price 1 ", my-realtor is updated : " my-realtor )
+         print ""
+      ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    ]
+
+
+                                                                                   ;; update the average-price of each realtor
+    ask realtors [                                                                 ;; ask each realtor
+
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;      if debug? or debug-go = "s15 realtor-average-price" [
+;
+;        inspect self
+;
+;        user-message (word "s15 realtor-average-price : update realtor's average-price. " )]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+      let my-houses-for-sale houses-for-sale with [ member? myself local-realtors ] ;; get all houses under this realtor
+
+      if any? my-houses-for-sale [ set average-price median [ sale-price ] of my-houses-for-sale ]
+                                                                                    ;; if these houses exist, take their median price as the realtor's average-price for its all houses
+
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;      if debug? or debug-go = "s15 realtor-average-price" [
+;
+;        user-message (word "s15 realtor-average-price : average-price is updated. ")
+;
+;        stop-inspecting self
+;      ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ]
+
+    set medianPriceOfHousesForSale median [sale-price] of houses-for-sale           ;; update median price of all houses on sale
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    if exp-options = "houseStory" [ show "At the same time, all realtors's average-price are updated. Also update the medianPrice for all houses for sale------" print "" ]
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+  ]
+
+  paint-houses                                                                      ;; update colors after prices are updated
 
 
   ;; make an offer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1403,27 +1441,35 @@ to step
 
   let buyers owners with [ not (is-house? my-house) or ([ for-sale? ] of my-house) ]  ;; put all owners who don't have a house or whose houses on sale under `buyers`
 
-  ask owners with [ not (is-house? my-house) ] [ ;; ask each owner who has no house to make an offer on `houses-for-sale`
+  ask owners with [ not (is-house? my-house) ] [                                      ;; ask each owner who has no house to make an offer on `houses-for-sale`
+
     make-offer houses-for-sale
     ]
 
 
-  ask owners with [ (is-house? my-house) and ([ for-sale? ] of my-house) ] [ ; and now those who do have a house to sell get a chance to make an offer on `houses-for-sale`
+  ask owners with [ (is-house? my-house) and ([ for-sale? ] of my-house) ] [          ;; and now those who do have a house to sell get a chance to make an offer on `houses-for-sale`
     make-offer houses-for-sale
     ]
 
-  set nOwnersOffered count owners with [is-house? made-offer-on ] ;; count the number of owners who has an affordable house to buy
+  set nOwnersOffered count owners with [is-house? made-offer-on ]                     ;; count the number of owners who has an affordable house to buy
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  if exp-options = "houseStory" [
+    let house-me one-of houses with [size = 3]
+    if not [for-sale?] of house-me [ show "I am a house not for sale, so there will be no buyer make offer on me. -----------------------" ]
+    print ""
+  ]
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
   ;; move into new houses ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; if a deal is made, then households will move in and out of houses
-   set moves 0  ;; the number of households moving in this step
+   set moves 0                                                                        ;; the number of households moving in this step
 
-   ask buyers with [ not is-house? my-house and is-house? made-offer-on ] [ ;; ask buyers who have no houses and made offer on a house
+   ask buyers with [ not is-house? my-house and is-house? made-offer-on ] [           ;; ask buyers who have no houses and made offer on a house
 
-     if follow-chain self [  ;; self is buyer, and check whether the buy-sell chain is intact or not
+     if follow-chain self [                                                           ;; self is buyer, and check whether the buy-sell chain is intact or not
 
-       move-house  ;; if intact, deal is made, and households move out and into houses, count the number of moves
+       move-house                                                                     ;; if intact, deal is made, and households move out and into houses, count the number of moves
      ]
    ]
 
@@ -1638,80 +1684,94 @@ to make-offer [ houses-for-sale ]
 
   let new-mortgage income * Affordability / ( interestPerTick * ticksPerYear * 100 );; use current income, Affordability, interestPerTick to calc new-mortgage
 
-  let budget new-mortgage - stamp-duty-land-tax new-mortgage  ;; actual budget for buying a house == new-mortgage - duty or tax we get back
+  let budget new-mortgage - stamp-duty-land-tax new-mortgage                        ;; actual budget for buying a house == new-mortgage - duty or tax we get back
 
-  let deposit capital  ;; buyer use capital to pay for new deposit
+  let deposit capital                                                               ;; buyer use capital to pay for new deposit
 
   if is-house? my-house [ set deposit deposit + ([ sale-price ] of my-house - mortgage) ]
-  ;; under the context of owners, if it has a house, update new deposit with new deposit + sale-price of current house - current mortgage
+                                                                                    ;; under the context of owners, if it has a house, update new deposit with new deposit + sale-price of current house - current mortgage
 
-  let upperbound budget + deposit  ;; upperbound = the maximum amount afford to offer on a house = new mortgage - duty-back + new deposit
+  let upperbound budget + deposit                                                   ;; upperbound = the maximum amount afford to offer on a house = new mortgage - duty-back + new deposit
 
-  if MaxLoanToValue < 100 [  ;; if mortgage is less than house value => (MaxLoanToValue/100 < 100/100 )
+  if MaxLoanToValue < 100 [                                                         ;; if mortgage is less than house value => (MaxLoanToValue/100 < 100/100 )
 
-    set upperbound min ( list (budget + deposit ) ( deposit / ( 1 - MaxLoanToValue / 100 )))  ;; update upperbound with the less between two similar values
+    set upperbound min ( list (budget + deposit ) ( deposit / ( 1 - MaxLoanToValue / 100 )))
+                                                                                    ;; update upperbound with the less between two similar values
 
     ]
 
 
-  if upperbound < 0 [  ;; if upperbound is less than 0, meaning the owner has negative equity (how it is possible?)
+  if upperbound < 0 [                                                               ;; if upperbound is less than 0, meaning the owner has negative equity (how it is possible?)
 
-    ask my-house [ set for-sale? false ] ;; pull the house back from market, and stay in the house
+    ask my-house [ set for-sale? false ]                                            ;; pull the house back from market, and stay in the house
 
-    stop ;; this owner stop performing the rest action below
+    stop                                                                            ;; this owner stop performing the rest action below
     ]
 
-  let lowerbound upperbound * 0.7  ;; set lowerbound to be 70% of upperbound
+  let lowerbound upperbound * 0.7                                                   ;; set lowerbound to be 70% of upperbound
 
-  let current-house my-house  ;; get the current owner's my-house under `current-house`
+  let current-house my-house                                                        ;; get the current owner's my-house under `current-house`
 
-  let interesting-houses houses-for-sale with [ ;; from all the houses on sale, get those
+  let interesting-houses houses-for-sale with [                                     ;; from all the houses on sale, get those
 
-                            not is-owner? offered-to and ;; without offer
+                            not is-owner? offered-to and                            ;; without offer
 
-                            sale-price <= upperbound and ;; and sale-prices within upperbound
+                            sale-price <= upperbound and                            ;; and sale-prices within upperbound
 
-                            sale-price > lowerbound and  ;; and sale-prices greater than lowerbound
+                            sale-price > lowerbound and                             ;; and sale-prices greater than lowerbound
 
-                            self != current-house ]  ;; and the house is not current house,            --->  into `interesting-houses`
+                            self != current-house ]                                 ;; and the house is not current house,            assinged  into `interesting-houses`
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  if debug? or debug-go = "s20 make-offer part1" [
-    ask interesting-houses [ set size 2 ]
-    user-message (word "s20 make-offer part1, identify the interesting houses buyers may make an offer. See the enlarged houses. " )
-    ask interesting-houses [ set size 1 ]
-  ]
+;  if debug? or debug-go = "s20 make-offer part1" [
+;    ask interesting-houses [ set size 2 ]
+;    user-message (word "s20 make-offer part1, identify the interesting houses buyers may make an offer. See the enlarged houses. " )
+;    ask interesting-houses [ set size 1 ]
+;  ]
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-  if count interesting-houses > BuyerSearchLength [  ;; if number of interesting-houses > BuyerSearchLength (number of houses buyers willing to see)
+  if count interesting-houses > BuyerSearchLength [                                 ;; if number of interesting-houses > BuyerSearchLength (number of houses buyers willing to see)
 
-    set interesting-houses n-of BuyerSearchLength interesting-houses ;; then select randomly BuyerSearchLength number of interesting-houses
+    set interesting-houses n-of BuyerSearchLength interesting-houses                ;; then select randomly BuyerSearchLength number of interesting-houses
     ]
 
-  if any? interesting-houses [  ;; if interesting-houses exist
+  if any? interesting-houses [                                                      ;; if interesting-houses exist
 
-    let property max-one-of interesting-houses [ sale-price ]  ;; find the house with the maximum sale-price of interesting-houses and assigned to `property` a local-var
+    let property max-one-of interesting-houses [ sale-price ]                       ;; find the house with the maximum sale-price of interesting-houses and assigned to `property` a local-var
 
-      if is-house? property [  ;; if the `property` is a house
+      if is-house? property [                                                       ;; if the `property` is a house
 
-        ask property [  ;; ask this house
+      ask property [                                                                ;; ask this house
 
-          set offered-to myself  ;; assign the current owner as `offered-to` under the context of `property`
+          set offered-to myself                                                     ;; assign the current owner as `offered-to` under the context of `property`
 
-          set offer-date ticks   ;; set `ticks` to be `offer-date` (house property)
+          set offer-date ticks                                                      ;; set `ticks` to be `offer-date` (house property)
         ]
 
-        set made-offer-on property  ;; assign `property` (a house ) to owner's property `made-offer-on`
+        set made-offer-on property                                                  ;; assign `property` (a house ) to owner's property `made-offer-on`
 
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      if exp-options = "houseStory" and [size] of property = 3 [
+        show "I am on sale and someone made an offer on me ----------------------------------"
+        ask property [
+        show (word "my ID : " who ", my-owner : " my-owner ", local-realtors : " [who] of local-realtors  ", my-realtor : " my-realtor )
+        show (word ", for-sale : " for-sale?  ", quality : " precision quality 1 ", sale-price : " precision sale-price 1 ", date-for-sale : " date-for-sale )
+        show (word ", offered-to : " offered-to ", offer-date : " offer-date ", end-of-life : " end-of-life ", my-size : " size)
+        print ""
+        ]
+      ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ]
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    if debug? or debug-go = "s21 make-offer part2" [
-      ask property [ follow-me ]
+;    if debug? or debug-go = "s21 make-offer part2" [
+;      ask property [ follow-me ]
+;
+;      user-message (word "s21 make-offer part2 : choose from interesting houses and make an offer on the most expensive house, and update its `offered-to` and `offer-date`." )
+;  ]
 
-      user-message (word "s21 make-offer part2 : choose from interesting houses and make an offer on the most expensive house, and update its `offered-to` and `offer-date`." )
-  ]
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
      ]
