@@ -45,3 +45,75 @@
 > •  An easy way to address **dynamics**
 > •  The opportunity to **model interactions** between people and between people and their environment
 > We now take a brief look at each of these.
+
+
+
+#### conventionalEconomicModelVariablesNoHeterogeneity vs ABMvariablesHeterogeneity
+
+> Traditional approaches to economics have long been criticised for <u>‘lumping’ things together</u>. Think, for example, of a **Cobb–douglas production function** in which <u>two variables, labour and capital</u>, are combined to produce output. Clearly, there are different types of labour and different types of capital, and one kind cannot replace another overnight: a bricklayer cannot just become a software designer, nor vice versa, and a factory producing cars cannot produce computer chips. Nor are all consumers the same: a rich household will have a very different spending pattern to a poor household. Some must save so that others can borrow. Indeed, <u>without heterogeneity, there would be no scope for trading</u>. **ABM allows for such heterogeneity to be represented explicitly** and without causing insuperable complications.
+
+
+
+#### DynamicsAdaptiveProcess = compareStaticsEquilibriumInadequate = modelDynamicsMathUnmanageable
+
+> By <u>dynamics</u>, we here refer to **adaptive processes**, which, according to leijonhufvud (2006), is the sense in which it was originally used in economics. Most economic textbooks <u>only use comparative statics</u>, that is, <u>compare equilibrium situations</u>. yet as long ago as 1941, Samuelson pointed out that <u>comparative statics were inadequate for the analysis of a range of economic problems</u> (Samuelson, 1941). But as the examination of any basic economics textbook will show, <u>comparative statics still dominates teaching</u>. The question of <u>how the economy moves from one equilibrium to another is not addressed</u>. This is only now starting to change under the auspices of CORE, which gives prominence to dynamics (CORE, 2014). However, **modelling dynamics by traditional methods is difficult as the mathematics quickly become unmanageable**. <u>using ABM, simple rules can be applied and tested through simulation.</u>
+
+#### economicsMarketsBasedOnInteractions
+
+> People influence each other’s behaviour. <u>Herd behaviour is common in economics</u>; people copy fashion, and markets take flight. Indeed, <u>markets are based on interactions</u>: sellers and buyers trade. <u>The traditional economic models do not allow for this kind of interaction, but it is easily modelled using agents</u>. ABM can also model in a simple manner how people can interact with the environment, for example, using up scarce resources.
+
+#### ABMwithTopicsMoreAppropriate : trade, market, reserve banking system
+
+> It is clearly impossible to cover everything presented in standard economics textbooks, which typically run to hundreds of pages (e.g. the British Begg et al.’s Economics (2011) and, from the united States, Varian’s Intermediate Economics (2010)). So we have <u>chosen topics within areas that seem to be particularly suitable for ABM, that is, where heterogeneity, interaction and dynamics are important.</u>
+> Markets are a key theme of this book. We start with consumer choice in Chapter 3 and include fashion dynamics in Chapter 4 before introducing markets, through barter, in Chapter 5 with a fuller development in Chapter 6. The later chapters cover markets in the contexts of labour in Chapter 7 and international trade in Chapter 8. We have deliberately avoided discussion of financial markets as the usefulness of ABM has already been well established in this area by <u>leBaron (2006) and others</u>. But Chapter 9 demonstrates the potentially explosive dynamics of the fractional reserve banking system. Chapter 10 shows how ABM can be used to model not only the interaction between economic agents but the interaction between agents and their natural environment.
+
+#### findCheapestShopModel to learn NetLogo
+
+> Chapter 2 shows how to create a simple agent‐based model and introduces the programming environment, Netlogo, that will be used for the models described in the rest of the book. The model simulates consumers shopping for fruit and vegetables in a produce market. The consumer agents are initially programmed to <u>choose a market stall to purchase from at random</u>, and then <u>successive enhancements are made to record the cost of purchases</u>, to <u>stop them revisiting a stall they have previously been to and to try to find the cheapest stalls to buy from</u>. Many of the basic building blocks of Netlogo programming are described.
+
+#### agentHouseholds : replicateIncomeDistribution, Cobb-douglas utilityFunction, priceChangeByDemand, compareRepresentativeAgentHeterogeneousAgent
+
+> Chapter 3 introduces ABM by showing how it can be used to create heterogeneous agents whose characteristics and behaviour can be summed to generate observed macro patterns. Three models are presented in which <u>agents represent households</u>. The first model <u>generates a budget distribution to replicate the observed distribution of income</u> in the united Kingdom. The second adds <u>a Cobb–douglas utility function</u> to draw both individual and aggregate demand curves and demonstrates how consumers’ choices can be <u>tracked from their preferences to their contribution to aggregate demand</u>. The third model provides a practical way of examining the <u>effect on demand of price changes</u>. Finally, the chapter <u>compares</u> the results from these simple models using <u>heterogeneous agents with those from a ‘representative agent’ analysis</u>.
+
+#### agentInfluencedByPriceIncomeOthersActions, modelSocialNetworks, thresholdModels, adoptationNewProduct
+
+> Chapter 4 adds <u>interaction between agents and dynamics</u>. Consumers’ behaviour is now not just <u>influenced by prices and incomes but also by what others do</u>, especially family and friends. ABM is well suited to <u>modelling such social networks</u>, and the first model in this chapter does this very simply using the concept of <u>social circles</u>. Next, we introduce <u>threshold models</u> and show how these can be combined with the <u>social network model to examine possible adoption patterns of new products</u>. The chapter then reviews the <u>adoption of new technology by households</u> in the united Kingdom and finally presents a case study of the <u>adoption of fixed‐line phones in the united Kingdom from 1951 to 2001</u>.
+
+#### BenefitBarter = dynamicsTrading + stochasticPeer2PeerTradingMechanism
+
+> Chapter 5 demonstrates how ABM allows us to <u>explore the dynamics of heterogeneous agents interacting by trading.</u> using the **two‐good economy** much beloved of economics textbooks, agents trade by barter. We model an exchange economy broadly based on a description of trading that occurred in a <u>prisoner‐of‐war camp</u>. We start by creating a model that <u>reproduces the Edgeworth Box to tease out the essentials of the barter process between two individuals.</u> We explore the effectiveness of <u>different price setting mechanisms</u> in clearing the market and achieving Pareto optimality, starting with the <u>theoretical Walrasian auctioneer</u>. Then we extend this model to allow 200 agents to trade. We show that <u>a simple stochastic peer‐to‐peer trading mechanism can produce a large increase in welfare</u>, even if total utility is not maximised.
+
+#### dynamicsInteractiveMarket = duopoly-NashEquilibrium-InaccurateInfo + smallShop-CompetitionSurvival-ForesightLimited + digitBusinessNoLimit
+
+> Chapter 6 focuses on the decisions of firms and demonstrates how ABM can easily <u>accommodate the dynamic and interactive nature of markets</u>. We present three models. The first is based on Cournot’s classic model of <u>duopoly and its Nash equilibrium</u> but introduces the possibility of <u>inaccurate information</u>. The second model is based on small shops in the real world that do not have the benefit of the <u>perfect foresight</u> that is granted to firms operating <u>under perfect competition</u> and illustrates the <u>dynamics of survival</u>. The final model reflects business in the digital world, where there is no limit on capacity.
+
+#### HeterogeneityDynamicsLaborMarket = distributionWage + skewDistributionFirmSize + flowsWorkers = combineMicroMacro
+
+> <u>Heterogeneity and dynamics</u> are the central themes of Chapter 7. The united Kingdom labour market is characterised by <u>large flows and great diversity among the participants</u>. The chapter starts with a model to generate the <u>distribution of wages</u>. It then adds the interaction between employers and workers as employers <u>try to fill vacancies and workers seek jobs</u>, touching briefly on the <u>very skew distribution of firms by size</u>. Finally, the various <u>flows of workers between employers and into and out of the labour force</u> are added to produce a simple, but interesting, model of the labour market of a small town. It also shows <u>how micro and macro aspects can be combined in one model.</u>
+
+#### InternationalTradeExchangeRate = 5countries2FloatingRate3Eurozone + inflation-Depreciation-Demand-FiscalChange
+
+> Chapter 8 presents a simple model of trade between one country and the rest of the world, focusing on the determination of exchange rates. Five countries are used as examples, <u>two with floating exchange rates and three in the Eurozone</u>. Four scenarios are examined: <u>inflation, depreciation, exogenous change in demand for exports and the impact of fiscal policy changes</u>. The model focuses on dynamics. Even this simple model serves to highlight the <u>difficulty of modelling the dynamics of international trade</u>. It also shows clearly the constraints under which Eurozone countries operate.
+
+#### fractionalReserveBanking = saverBorrower + dynamicProcesses
+
+> Chapter 9 uses a simple agent‐based model to explore the basic features of <u>fractional reserve banking</u> and shows how the reserve and capital adequacy ratios imposed by regulators can dampen an otherwise explosive system. It illustrates how ABM can accommodate heterogeneity in that both <u>savers and borrowers</u> can be represented; how micro and macro aspects can be combined in one model, unlike the conventional textbook treatment of banking; and the importance of <u>taking dynamic processes fully into account in modelling the banking system.</u>
+
+#### TragedyCommons : noRestrictionTragedy + setLimitAvoidTragedy
+
+> Chapter 10 demonstrates how ABM can handle the interaction of agents with their environment as well as with one another by addressing the <u>problem of the overuse of shared resources</u>. In the ‘**tragedy of the commons**’, <u>the pursuit of self‐interest results in overuse of a common pool resource to the detriment of all</u>. A model, inspired by English common land, is built in two stages. First, a meadow is created and its carrying capacity established. Then commoners are introduced. If there are no restrictions on the number of cows grazed on the meadow, there is overgrazing and ‘the tragedy’ ensues. But by following actual practice observed in England and Switzerland of <u>setting limits on the number each commoner is allowed to graze</u>, the model demonstrates that the tragedy can be avoided. The model can be readily adapted to accommodate other scenarios.
+
+> Chapter 11: Summary and conclusions
+> The final chapter summarises the models to show how ABM has addressed the weaknesses in the existing methods identified in Section 1.2 by allowing heterogeneity, facilitating dynamics and modelling interactions between people and their environments and thereby improving the link between micro‐ and macroeconomics. It also sets out some of the problems that need to be addressed in order for ABM’s potential to make a useful contribution to economics to be fully realised.
+> We present 19 models in Chapters 3–10, ranging from modules to be used in larger models to a real‐world model. In each case, we follow Müller et al. (2014) who suggested ‘a structured natural language description plus the provision of source code’ as being ‘particularly suited for academic purposes’. We describe the models in natural language in the chapters. The appendices to the chapters provide more details based on the <u>Odd (Overview, design concepts, and details) protocol</u> (grimm et al., 2010) and include pseudocode. The code itself is provided on the website http://cress.soc.surrey.ac.uk/.
+
+
+
+
+
+
+
+
+
+
+
