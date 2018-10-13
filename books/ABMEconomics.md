@@ -1,4 +1,4 @@
-[Gilbert, G. Nigel_ Hamill, Lynne - Agent-based modelling in economics (2015, Wiley).pdf](/Users/Natsume/Desktop/NetLogo 6.0.4/models/MMM/EconomicsABM/Gilbert, G. Nigel_ Hamill, Lynne - Agent-based modelling in economics (2015, Wiley\).pdf)
+[ABM in economics.pdf](ABM in economics.pdf)
 
 
 
@@ -107,13 +107,51 @@
 > The final chapter summarises the models to show how ABM has addressed the weaknesses in the existing methods identified in Section 1.2 by allowing heterogeneity, facilitating dynamics and modelling interactions between people and their environments and thereby improving the link between micro‐ and macroeconomics. It also sets out some of the problems that need to be addressed in order for ABM’s potential to make a useful contribution to economics to be fully realised.
 > We present 19 models in Chapters 3–10, ranging from modules to be used in larger models to a real‐world model. In each case, we follow Müller et al. (2014) who suggested ‘a structured natural language description plus the provision of source code’ as being ‘particularly suited for academic purposes’. We describe the models in natural language in the chapters. The appendices to the chapters provide more details based on the <u>Odd (Overview, design concepts, and details) protocol</u> (grimm et al., 2010) and include pseudocode. The code itself is provided on the website http://cress.soc.surrey.ac.uk/.
 
+## Starting agent‐based modelling
 
+socialScientists should learn, understand and program codes of models
 
+> While it is possible just to use an agent‐based model that someone else has developed, it is much better and more interesting to see what goes on ‘under the hood’, so that you can see and understand the program code that is making the model work. <u>Learning how to program, as well as being a worthwhile exercise in its own right, will allow you to modify existing programs, for example, to explore the effect of different settings and different assumptions, and eventually to build your own programs.</u> Programming used to be a matter for experts, requiring many months of study or a degree in computer science. Fortunately, advances in programming languages and interfaces have meant that programming is becoming ever more easily accessible to those without expert knowledge. In this book, we use a programming system called NetLogo (Wilensky, 1999) that was originally designed for secondary (high) school pupils and is still used, particularly in the United States, to teach science by means of simulations. The origins of NetLogo mean that a great deal of attention has been paid to making the NetLogo system easy to use and to understand. We will take advantage of that in this book, and we will also benefit from the fact that NetLogo is especially good for developing agent‐based models. The authors describe it as a ‘multi‐agent programmable modelling environment’.
 
+## A simple market: the basic model
 
+#### dynamicsSimpleProduceMarket
 
+> Much of this book is about modelling markets of different types. one of the simplest is a produce market, such as is often found in towns and cities selling fruits and vegetables. In this model, there are shoppers, each with a shopping list, and a number of market stalls, each selling a range of fruits and vegetables. The shoppers want to buy the items on their lists, which will differ from one shopper to the next, and may want to minimise the cost of their shopping. The stallholders sell their produce for different prices, depending on what they think the customers will pay, the prices that they paid in a wholesale market and other factors. Not all stalls sell the complete range of fruits and vegetables.
 
+#### rebuildModelsFromScratch + verificationAtEachStep
 
+> The model described so far is intentionally rather simple to make it easier to explain the general structure of agent‐based models. As you may have noticed, it does not include any economic variables as yet. But once a basic model is working, it can be modified and enhanced with further details, and often, this is the best way to develop models: one stage at a time. Indeed, it is very important to check that a model is doing what you intended as you develop it. **If this process, called verification, is left until the model is large and complicated, it may well be almost impossible to do**. NetLogo makes this approach to development easy because it is simple to edit a program and see the effect of changes.
 
+#### simpleABM = heterogeneousAgent + dynamicsWithoutEquilibrium + interaction + rationalityWithLimit = modelMarketChap2
 
+> The agents were heterogeneous: <u>the range of fruits and vegetables stocked differed between market traders,</u> and every shopper had <u>a different shopping list</u>. consequently, <u>the behaviour of each agent differed</u>. The **dynamics** of the system were important: there is **no notion of equilibrium** in the model, but we can <u>observe agents proceeding through time to purchase their shopping</u>. Thirdly, the agents **interacted**: <u>shoppers bought from traders</u>. Furthermore, agents were endowed with some **rationality** that allowed them to attempt to **optimise but within constraints** imposed by <u>limited information and limited resources of time and effort.</u>
 
+#### correlationRequreMultipleRuns
+
+> **The amount of scanning that agents do to find the cheapest stalls should be correlated with a reduction in the average price that they pay: the more they search, the more likely that they will find the optimum set of prices.** However, <u>it is not easy to see</u> this by running the model once for each of several values of the n‐scans slider. This is because the prices of the fruits and vegetables, the markups that the traders apply, the range of stock that each stall has, the shoppers’ lists of what to buy and the choices of stalls to visit <u>all vary randomly from run to run</u>, and <u>all affect the average price paid</u>. This is typical of many <u>agent‐based models</u>. They are <u>stochastic, with behaviour that varies randomly</u>. The usual method of assessing such models is to run them many times and take the average of the outcomes. (How many is enough runs to yield a reliable average can be complicated to work out, but as a guide, it is **useful to calculate the standard deviation of the mean and continue the runs until this is no longer reducing**).
+>
+> Let us assume that 100 runs is enough. We should run the model 100 times with the agents each scanning one route, find the average price of the agents’ shopping lists, then repeat for another 100 times with the agents scanning for the best of two routes and so on. This will clearly require running the model several hundred times, and it would be impracticable to do this manually, pressing the setup and go buttons and calculating the average of the runs hundreds of times. Fortunately, NetLogo can do the work for us. Since both setup and go are procedures, we can write some additional code that calls these procedures and calculates the desired mean of the average cost of the shopping baskets (see Box 2.5).
+
+#### experimentationCodeMoreFlexible > BehaviorSpace
+
+> command line run : run-experiment
+
+> ```netlogo
+> to run-experiment
+>  set n-scans 1
+>  let runs-per-trial 100
+>  while [ n-scans <= 10 ] [
+>   let total-of-averages 0
+>   repeat runs-per-trial [
+>    setup
+>    go
+>    set total-of-averages total-of-averages + mean [ spent ] of shoppers
+>    ]
+>   show (word “Mean of average of cost of shopping lists over ” runs-per-trial “ runs    for ” n-scans “ scans = ” (total-of- averages /runs-per-trial))
+>   set n-scans n-scans + 1
+>  ]
+>  show “Finished.”
+> ```
+>
+>
