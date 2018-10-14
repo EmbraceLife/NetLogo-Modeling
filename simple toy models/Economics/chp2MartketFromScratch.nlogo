@@ -247,7 +247,7 @@ to go
 
   ask shoppers [
 ;; take one shopper to do mental shopping experiment ;;
-    let best-group-stalls search-best-stalls shopping-list                                    ;; verify 8: find the best-group-stalls through mental experiment
+    let best-group-stalls (search-best-stalls shopping-list traders)                                  ;; verify 8: find the best-group-stalls through mental experiment
 
    ;; 1.0 carrying a shopping list, randomly choose a stall to check
    ;; 1.1 check a stall, if the trader has what on the shopping list, bought with the selling price, update the shopping list
@@ -297,7 +297,66 @@ end
 ;; I am build the framework for this part above, it is difficult to verify the code by running it at the moment without writing the two missing functions first. ;;;;;;;
 
 
+to-report search-best-stalls [ a-shopping-list stalls ] ;; with common language get the details ready, we can write the code out with effort
 
+  let threshold-money-spent 100000                                                       ;; the larger the safer
+
+  let cheapest-stalls[]                                                                  ;; verify 9 : many lines of coded are added as coding up the main logic
+
+
+  repeat num-repeat [                                                                    ;; create a slider for num-repeat
+;; take one shopper to do mental shopping experiment ;;
+   ;; 1.0 carrying a shopping list, randomly choose a stall to check
+
+   ;; 1.1 check a stall, if the trader has what on the shopping list, bought with the selling price, update the shopping list
+   ;; 1.2 go to another stall, if the trader has what on the shopping list, bought with the selling price, update the shopping list
+   ;; 1.3 go to the next stall, do the same, until all stalls are out or the shopping list is complete
+   ;; 1.4 keep track all the stalls visited, and add up the money spent
+   ;; repeat the 5 steps above a number of times, return the group of stalls with the lowest total spending.
+
+  let shopping-list-update a-shopping-list
+
+  let total-money-spent 0
+
+
+  while not empty shopping-list-update [
+
+    let the-stall one-of traders with [not member? self visited-stalls]
+
+    foreach shopping-list-update [ x ->
+
+      if member? x [stocks ] of the-stall [
+
+        let x-price item ( position x [ stocks ] of the-stall ) [ selling-prices ] of the-stall
+
+        set total-money-spent total-money-spent + x-price
+
+        set shopping-list-update remove x shopping-list-update
+
+        set visited-stalls lput x visited-stalls
+
+      ]
+    ]
+  ]
+
+  if total-money-spent < threshold-money-spent [
+
+    set threshold-money-spent total-money-spent
+
+    set cheapest-stalls visited-stalls
+    ]
+  ]
+
+  report cheapest-stalls
+;; why shoppers shop like this?
+   ;; optimization: to find the best stall options before actually buying anything
+   ;; 2.0 each shopper has limited time and energy, can't have full information
+   ;; 2.1 each shopper can't keep track of which trader has the which cheapest produce among all traders
+   ;; 2.2 each shopper buy whatever on the list and sold by the randomly met stall
+   ;; 2.2 only through trial and error and compare with total cost, each shopper find its optimized group of stalls
+
+
+end
 ;;widgets;;
 ;;shoppers;;
 ;;  1. num-shoppers-slider: select the number of shoppers
@@ -393,6 +452,21 @@ num-shoppers
 num-shoppers
 1
 20
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+60
+166
+173
+199
+num-repeat
+num-repeat
+1
+10
 0.0
 1
 1
