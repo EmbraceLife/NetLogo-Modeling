@@ -91,6 +91,184 @@
 ;;  1. spending-graph: A graph showing the amount spent over time
 ;;  2. num-left-buy-report: the mean number of items left to buy
 ;;  3. average-spending-report: the average spend
+
+;;;;;;;;;; 2018.10.14 scratch step 1 above : https://github.com/EmbraceLife/NetLogo-Modeling/issues/6 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; Goal ;;
+;; How shoppers and traders buy and sell from each other in the market?  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; What should we have in this world ? ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Agents ;;
+;; 1. shoppers
+breed [shoppers shopper]
+;; 2. traders
+breed [traders trader]
+
+;; Shpper attributes ;;
+;; 1. a shopping list
+;; 2. money spent
+;; 3. the list of stalls or traders visited or not
+shoppers-own [
+  shopping-list
+  money-spent
+  traders-not-yet-visited
+]
+
+
+;; Trader attributes ;;
+;; 1. stocks (items) it sells
+;; 2. selling prices for the stocks
+traders-own [
+  stocks
+  selling-prices
+]
+
+
+;; Gloabls ;; variables differ from or outside agents
+;; 1. all the items or produces can be bought and sold on the market (through all traders and shoppers)
+   ;; 1.0 e.g., 12 vegetables and fruits
+   ;; 1.1 what traders sell can not beyond what the market can offer
+   ;; 1.2 what the shopper want can not beyond what the market can offer
+;; 2. There are market whole-sale prices for the items
+   ;; 2.0 e.g, random price between 1 and 100
+Globals [
+  vegetables-fruits-list
+  whole-sale-prices
+]
+
+;; What should the world be like at the beginning ? ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup                                                                             ;; remember to verify each line of code at every step
+
+  ;;;;;;;;;;verification code 3 ;;;;;;;;;;;;;;;;;;
+  clear-all                                                                          ;; without it, previous run or setup remaining will be kept
+  ;;;;;;;;;;verification code 3 ;;;;;;;;;;;;;;;;;;
+
+
+;; prepare globals ;;
+;; 1. create vegetables and fruits
+   ;; 1.0 create a list
+   ;; 1.1 inside the list there are 12 vegetables and fruits
+;; 2. create whole-sale prices for these produces above
+   ;; 2.0 set price range from 1 and 100
+   ;; 2.1 randomly price the produce from the range above
+  set vegetables-fruits-list (list "apple" "banana" "organce" "grapefruit" "avocado"
+    "pineapple" "carrot" "cabbage" "lettuce" "spinach" "tomato" "potato")
+
+  set whole-sale-prices []                                                           ;; make it an empty list, otherwise lput can be used
+
+  foreach vegetables-fruits-list [ x -> set whole-sale-prices lput
+
+    (1 + precision random 100 1) whole-sale-prices ]                                 ;; verify 1: create a list of random prices for whole-sale-prices
+
+  ;;;;;;;;;;verification code 1 ;;;;;;;;;;;;;;;;;;
+  show vegetables-fruits-list
+  show whole-sale-prices
+  ;;;;;;;;;;verification code 1 ;;;;;;;;;;;;;;;;;;
+
+
+;; prepare traders ;;
+;; 1. create num traders (num can be controlled by a slider)
+   ;; 1.0 house shape
+   ;; 1.1 red color
+   ;; 1.2 their y-cor is 0, but x-cor is random number (all traders are line up in the middle line of the world)
+   ;; 1.3 each trader has a fixed number of produces to sell, randomly selected from the total produce
+   ;; 1.4 each trader set a price for the produce it sells, pricing = the produce's whole-price + random rise between 1% to 30%
+
+  create-traders num-traders [                                                       ;; create a slider to control the number
+
+    set shape "house"
+    set color red
+    setxy random max-pxcor 0                                                         ;; verify 2: locate on the middle line, but need to change origin to the middle left
+
+    set stocks n-of num-stocks vegetables-fruits-list                                ;; verify 3: choose num-stocks from vege-fruits-list into stocks
+
+    set selling-prices []                                                            ;; verify 4.4 without it, error on lput
+
+    foreach stocks [ x ->                                                            ;; verify 4.1: a loop is needed
+
+      let whole-sale-price-x item ( position x vegetables-fruits-list ) whole-sale-prices
+                                                                                     ;; verify 4.2: extract whole-sale-price of each produce
+      let price-increase-ratio 1 + ( 1 + random 30 ) / 100                           ;; verify 4.3: how much rise is the selling-price of each produce from whole-sale
+      set selling-prices lput ( precision (price-increase-ratio * whole-sale-price-x) 1 ) selling-prices
+                                                                                     ;; verify 4.0 : the main logic of getting prices into a list
+
+    ]
+
+    ;;;;;;;;;;verification code 3 ;;;;;;;;;;;;;;;;;;
+    show (word "trader: " self ", its stocks are : " stocks )
+    ;;;;;;;;;;verification code 4 ;;;;;;;;;;;;;;;;;;
+    show (word "trader: " self ", its stocks selling prices: " selling-prices)
+
+  ]
+
+  ;;;;;;;;;;verification code 2 ;;;;;;;;;;;;;;;;;;
+  show (word "trader's xcors : " [xcor] of traders )
+
+
+;; 2. create num shoppers (num can be controlled by a slider)
+   ;; 2.0 person shape
+   ;; 2.1 yellow color
+   ;; 2.2 location to be random within the world
+   ;; 2.3 create a shopping list for the shopper, a random number between 1 and 8 from the total produces
+   ;; 2.4 keep track how much money spent buying the shopping list : 0
+   ;; 2.5 keep track of which stalls visited or not visited : [] or [ all traders ]
+  create-shoppers num-shoppers [                                                     ;; a slider is created
+    set shape "person"
+    set color yellow
+    setxy random-xcor random-ycor                                                    ;; verify 5: how random-xcor perform visually
+    set shopping-list []
+    set shopping-list n-of (1 + random 8) vegetables-fruits-list                     ;; verify 6: create a shopping list with random number produces and random order
+    set money-spent 0                                                                ;; verify 7: initialize money-spent 0
+    set traders-not-yet-visited traders                                              ;; verify 7: initialize traders-not-yet-visited all traders
+
+
+    ;;;;;;;;;;verification code 6 ;;;;;;;;;;;;;;;;;;
+    show (word "shopper:" self ", its shopping list : " shopping-list )
+    ;;;;;;;;;;verification code 7 ;;;;;;;;;;;;;;;;;;
+    show (word "its traders not yet visited are: " traders-not-yet-visited)
+
+
+  ]
+
+
+end
+
+;; How shoppers and traders interact in the world ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; take one shopper to do mental shopping experiment ;;
+   ;; 1.0 carrying a shopping list, randomly choose a stall to check
+   ;; 1.1 check a stall, if the trader has what on the shopping list, bought with the selling price, update the shopping list
+   ;; 1.2 go to another stall, if the trader has what on the shopping list, bought with the selling price, update the shopping list
+   ;; 1.3 go to the next stall, do the same, until all stalls are out or the shopping list is complete
+   ;; 1.4 keep track all the stalls visited, and add up the money spent
+   ;; repeat the 5 steps above a number of times, return the group of stalls with the lowest total spending.
+;; why shoppers shop like this?
+   ;; optimization: to find the best stall options before actually buying anything
+   ;; 2.0 each shopper has limited time and energy, can't have full information
+   ;; 2.1 each shopper can't keep track of which trader has the which cheapest produce among all traders
+   ;; 2.2 each shopper buy whatever on the list and sold by the randomly met stall
+   ;; 2.2 only through trial and error and compare with total cost, each shopper find its optimized group of stalls
+;; go to the chosen stalls one by one,
+;; buy the produces on the shopping list and the stall offers
+;; update the shopping list and track the money spent
+;; go to the next stall and do the same, until all stalls are gone or the shoppinglist is finished
+;; ask the next shopper to repeat above actions
+;; stop the simulation when the average shopping list length = 0
+
+
+;;widgets;;
+;;shoppers;;
+;;  1. num-shoppers-slider: select the number of shoppers
+;;  2. speed-slider: the speed at which they walk and
+;;  3. num-shopping-items-slider: number of items a shopper want to buy
+;;traders;;
+;;  1. num-stocks-slider: select the number of items stocked.
+;;Output;;
+;;  1. spending-graph: A graph showing the amount spent over time
+;;  2. num-left-buy-report: the mean number of items left to buy
+;;  3. average-spending-report: the average spend
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -109,8 +287,8 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
+0
+32
 -16
 16
 0
@@ -118,6 +296,68 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
+
+BUTTON
+720
+39
+786
+72
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+60
+41
+172
+74
+num-traders
+num-traders
+1
+20
+7.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+60
+83
+173
+116
+num-stocks
+num-stocks
+1
+12
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+61
+125
+174
+158
+num-shoppers
+num-shoppers
+1
+20
+9.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
