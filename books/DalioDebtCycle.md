@@ -418,25 +418,41 @@ if print-money? [ set economy-state inflationary set growth-stimulated? true ]
 ## The “Depression”
 
 > ![debt10](/Users/Natsume/Desktop/NetLogo 6.0.4/models/MMM/DalioDebtCycle/debtPics/debt10.png)
->
+
+#### normalRecessionCutRateWorks = positiveWealthEffect + stimulateEconomy + easeDebtServiceBurden
+
+#### depressionCutRateNoMore = alreadyZero + currencyWeaknessRateCutNoMore
+
 > In normal recessions (when monetary policy is still effective), the imbalance between the amount of money and the need for it to service debt can be rectified by cutting interest rates enough to 1) produce a positive wealth effect, 2) stimulate economic activity, and 3) ease debt-service burdens. This can’t happen in depressions, because interest rates can’t be cut materially because they have either already reached close to 0 percent or, in cases where currency outflows and currency weaknesses are great, the floor on interest rates is higher because of credit or currency risk considerations.
->
-> This is precisely the formula for a depression. As shown, this happened in the early stage of both the 1930–32 depression and the 2008–09 depression. In well managed cases, like the US in 2007–08, the Fed lowered rates very quickly and then, when that didn’t work, moved on to alternative means of stimulating, having learned from its mistakes in the 1930s when the Fed was slower to ease and even tightened at times to defend the dollar’s peg to gold.
+
+#### depressionCutRateNoMore => stimulateEconomyWithPrintingMoney
+
+> This is precisely the formula for a depression. As shown, this happened in the early stage of both the 1930–32 depression and the 2008–09 depression. In well managed cases, like the US in 2007–08, the Fed lowered rates very quickly and then, when that didn’t work, moved on to **alternative means of stimulating**, having learned from its mistakes in the 1930s when the Fed was slower to ease and even tightened at times to defend the dollar’s peg to gold.
 >
 > ![debt10](/Users/Natsume/Desktop/NetLogo 6.0.4/models/MMM/DalioDebtCycle/debtPics/debt11.png)
 >
 > The chart below shows the sharp lowering of interest rates toward 0 percent for the average of the 21 deflationary debt crises that we looked at.
 >
 > ![debt10](/Users/Natsume/Desktop/NetLogo 6.0.4/models/MMM/DalioDebtCycle/debtPics/debt12.png)
->
-> As the depression begins, debt defaults and restructurings hit the various players, especially leveraged lenders (e.g., banks), like an avalanche. Both lenders’ and depositors’ justified fears feed on themselves, leading to runs on financial institutions that typically don’t have the cash to meet them unless they are under the umbrella of government protections. Cutting interest rates doesn’t work adequately because the floors on risk-free rates have already been hit and because as credit spreads rise, the interest rates on risky loans go up, making it difficult for those debts to be serviced. Interest rate cuts also don’t do much to help lending institutions that have liquidity problems and are suffering from runs. At this phase of the cycle, debt defaults and austerity (i.e., the forces of deflation) dominate, and are not sufficiently balanced with the stimulative and inflationary forces of printing money to cover debts (i.e., debt monetization).
->
-> With investors unwilling to continue lending and borrowers scrambling to find cash to cover their debt payments, liquidity—i.e., the ability to sell investments for money—becomes a major concern. As an illustration, when you own a 100,000 debt instrument, you presume that you will be able to exchange it for 100,000 in cash and, in turn, exchange the cash for 100,000 worth of goods and services. However since the ratio of financial assets to money is high, when a large number of people rush to convert their financial assets into money and buy goods and services in bad times, the central bank either has to provide the liquidity that’s needed by printing more money or allow a lot of defaults.
->
-> The depression can come from, or cause, either solvency problems or cash-flow problems. Usually a lot of both types of problems exist during this phase. A solvency problem means that, according to accounting and regulatory rules, the entity does not have enough equity capital to operate—i.e., it is “broke” and must be shut down. So, the accounting laws have a big impact on the severity of the debt problem at this moment. A cash-flow problem means that an entity doesn’t have enough cash to meet its needs, typically because its own lenders are taking money away from it—i.e., there is a “run.” A cash-flow problem can occur even when the entity has adequate capital because the equity is in illiquid assets. Lack of cash flow is an immediate and severe problem—and as a result, the trigger and main issue of most debt crises.
->
+
+#### earlyDepression = debtDefault + runsOnLeveragedLendersLiquidityDry + rateZeroButRiskyLoansInterestRise + stimulativeForceNotStrongEnough
+
+> As the depression begins, <u>debt defaults and restructurings hit</u> the various players, especially leveraged lenders (e.g., banks), like an <u>avalanche</u>. Both lenders’ and depositors’ justified fears feed on themselves, leading to runs on financial institutions that typically don’t have the cash to meet them unless they are under the umbrella of government protections. Cutting interest rates doesn’t work adequately because <u>the floors on risk-free rates have already been hit and because as credit spreads rise, the interest rates on risky loans go up, making it difficult for those debts to be serviced. Interest rate cuts also don’t do much to help lending institutions that have liquidity problems and are suffering from runs.</u> At this phase of the cycle, debt defaults and austerity (i.e., the forces of deflation) dominate, and are <u>not sufficiently balanced with the stimulative and inflationary forces</u> of printing money to cover debts (i.e., debt monetization).
+
+#### financialAssetMoneyRatioHigh => noEnoughMoneySupport + causeMoreDebtDefaults + unlessFedPrintMoneySupport
+
+> With investors unwilling to continue lending and borrowers scrambling to find cash to cover their debt payments, liquidity—i.e., the ability to sell investments for money—becomes a major concern. As an illustration, when you own a 100,000 debt instrument, you presume that you will be able to exchange it for 100,000 in cash and, in turn, exchange the cash for 100,000 worth of goods and services. However since the <u>**ratio of financial assets to money is high**</u>, when a large number of people rush to convert their financial assets into money and buy goods and services in bad times, the central bank either has to provide the liquidity that’s needed by printing more money or allow a lot of defaults.
+
+#### immediateDepressionCauses = insolvencyNoEnoughEquityCapitalByRules + illiquidityNoEnoughCashToOperate(moreImmediateSevere)
+
+> The depression can come from, or cause, either <u>solvency problems or cash-flow problems</u>. Usually a lot of both types of problems exist during this phase. A solvency problem means that, according to accounting and regulatory rules, the entity does <u>not have enough equity capital to operate</u>—i.e., it is “broke” and must be shut down. So, the accounting laws have a big impact on the severity of the debt problem at this moment. A cash-flow problem means that an entity <u>doesn’t have enough cash to meet its needs</u>, typically because its own lenders are taking money away from it—i.e., there is a “run.” <u>A cash-flow problem can occur even when the entity has adequate capital because the equity is in illiquid assets</u>. Lack of cash flow is an **immediate and severe problem—and as a result, the trigger and main issue of most debt crises.**
+
+#### provideEquityCapital + changeRules => insolvency, provideCashOrGuarantees => illiquidity
+
 > Each kind of problem requires a different approach. If a solvency problem exists (i.e., the debtor doesn’t have enough equity capital), it has an accounting/regulatory problem that can be dealt with by either a) providing enough equity capital or b) changing the accounting/regulatory rules, which hides the problem. Governments can do this directly through fiscal policy or indirectly through clever monetary policies if the debt is in their own currency. Similarly, if a cash-flow problem exists, fiscal and/or monetary policy can provide either cash or guarantees that resolve it.
->
+
+#### 1980sDebtCrisisByLiquidityDry + 2008DebtCrisisByInsolvency
+
 > A good example of how these forces are relevant is highlighted by the differences between the debt/banking crises of the 1980s and 2008. In the 1980s, there was not as much mark-to-market accounting (because the crisis involved loans that weren’t traded every day in public markets), so the banks were not as “insolvent” as they were in 2008. With more mark-to-market accounting in 2008, the banks required capital injections and/or guarantees to improve their balance sheets. Both crises were successfully managed, though the ways they were managed had to be different.
 >
 > Going into the “depression” phase of the cycle (by which I mean the severe contraction phase) some protections learned from past depressions (e.g., bank-deposit insurance, the ability to provide lender-of-last-resort financial supports and guarantees and to inject capital into systemically important institutions or nationalize them) are typically in place and are helpful, but they are rarely adequate, because the exact nature of the debt crisis hasn’t been well thought through. Typically, quite a lot of lending has taken place in the relatively unregulated “shadow banking system,” or in new instruments that have unanticipated risks and inadequate regulations. What happens in response to these new realities depends on the capabilities of the policy makers in the decision roles and the freedom of the system to allow them to do what is best.
@@ -458,3 +474,4 @@ if print-money? [ set economy-state inflationary set growth-stimulated? true ]
 > The capitalists/investors class experiences a tremendous loss of “real” wealth during depressions because the value of their investment portfolios collapses (declines in equity prices are typically around 50 percent), their earned incomes fall, and they typically face higher tax rates. As a result, they become extremely defensive. Quite often, they are motivated to move their money out of the country (which contributes to currency weakness), dodge taxes, and seek safety in liquid, noncredit-dependent investments (e.g., low-risk government bonds, gold, or cash).
 >
 > Of course, the real economy as well as the financial economy suffers. With monetary policy constrained, the uncontrolled credit contraction produces an economic and social catastrophe. Workers suffer as incomes collapse and job losses are severe. Hard-working people who once were able to provide for their families lose the opportu- nity to have meaningful work and suddenly become either destitute or dependent. Homes are lost because owners can no longer afford to pay their mortgages, retirement accounts are wiped out, and savings for college are lost. These conditions can persist for many years if policy makers don’t offset the depression’s deflationary forces with sufficient monetary stimulation of a new form.
+
