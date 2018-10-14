@@ -4,38 +4,80 @@
 ;;  1. The items in the shoppers’ lists
 ;;  2. the items stocked by traders and prices
 
-;; How to build the model step by step naturally and intuitively ? ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;globals;;
-;;    1. fruit-vegetables ;; 12 of them
-;;    2. whole-sale prices ;; each item whole-sale price randomly between 1 and 100.
-
-;;shops-traders;;
-;;    1. physical objects: 9 red house, placed in a line across the middle, allocate randomly to each trader
-
-;;trader-attributes;;
-;;    1. Stock ;; the number of items out of 12 are stocked by traders
-;;    2. Prices ;; based on wholesale prices plus a random mark-up of between 1 and 30%.
-
-;; shoppers ;;
-;;    1. create a number of yellow persons, located randomly
-;; shopper-attributes ;;
-;;    1. A shopping list of between 1 and 8 items, selected randomly.
-;;    2. A list of traders not yet visited: initially this is all traders
-;;    3. The amount spent: initially this is nil.
-
-;; shopping rules ;;
-;;    1. scanning the stalls for the cheapest sequence of stalls
-;;    2. number of stalls scanned is decided by user
-;;    3. visiting the selected stalls for visualization
-;;    4. Ensuring that no stall is visited twice
-;;    5. Recording what is bought
-;;    6. Adding up how much is spent.
-;;    7. When the shopping list is empty, the shopper goes home.
 
 
-;; plot ;; report the results and plot the graph.
-;; average shopping list ;; Calculate the mean length of the shoppers’ lists.
+;; Goal ;;
+;; How shoppers and traders buy and sell from each other in the market?  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; What should we have in this world ? ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Agents ;;
+;; 1. shoppers
+;; 2. traders
+
+;; Shpper attributes ;;
+;; 1. a shopping list
+;; 2. money spent
+;; 3. the list of stalls or traders visited or not
+
+;; Trader attributes ;;
+;; 1. stocks (items) it sells
+;; 2. selling prices for the stocks
+
+;; Gloabls ;; variables differ from or outside agents
+;; 1. all the items or produces can be bought and sold on the market (through all traders and shoppers)
+   ;; 1.0 e.g., 12 vegetables and fruits
+   ;; 1.1 what traders sell can not beyond what the market can offer
+   ;; 1.2 what the shopper want can not beyond what the market can offer
+;; 2. There are market whole-sale prices for the items
+   ;; 2.0 e.g, random price between 1 and 100
+
+;; What should the world be like at the beginning ? ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; prepare globals ;;
+;; 1. create vegetables and fruits
+   ;; 1.0 create a list
+   ;; 1.1 inside the list there are 12 vegetables and fruits
+;; 2. create whole-sale prices for these produces above
+   ;; 2.0 set price range from 1 and 100
+   ;; 2.1 randomly price the produce from the range above
+
+;; prepare traders ;;
+;; 1. create num traders (num can be controlled by a slider)
+   ;; 1.0 house shape
+   ;; 1.1 red color
+   ;; 1.2 their y-cor is 0, but x-cor is random number (all traders are line up in the middle line of the world)
+   ;; 1.3 each trader has a fixed number of produces to sell, randomly selected from the total produce
+   ;; 1.4 each trader set a price for the produce it sells, pricing = the produce's whole-price + random rise between 1% to 30%
+;; 2. create num shoppers (num can be controlled by a slider)
+   ;; 2.0 person shape
+   ;; 2.1 yellow color
+   ;; 2.2 location to be random within the world
+   ;; 2.3 create a shopping list for the shopper, a random number between 1 and 8 from the total produces
+   ;; 2.4 keep track how much money spent buying the shopping list : 0
+   ;; 2.5 keep track of which stalls visited or not visited : [] or [ all traders ]
+
+
+;; How shoppers and traders interact in the world ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; take one shopper to do mental shopping experiment ;;
+   ;; 1.0 carrying a shopping list, randomly choose a stall to check
+   ;; 1.1 check a stall, if the trader has what on the shopping list, bought with the selling price, update the shopping list
+   ;; 1.2 go to another stall, if the trader has what on the shopping list, bought with the selling price, update the shopping list
+   ;; 1.3 go to the next stall, do the same, until all stalls are out or the shopping list is complete
+   ;; 1.4 keep track all the stalls visited, and add up the money spent
+   ;; repeat the 5 steps above a number of times, return the group of stalls with the lowest total spending.
+;; why shoppers shop like this?
+   ;; optimization: to find the best stall options before actually buying anything
+   ;; 2.0 each shopper has limited time and energy, can't have full information
+   ;; 2.1 each shopper can't keep track of which trader has the which cheapest produce among all traders
+   ;; 2.2 each shopper buy whatever on the list and sold by the randomly met stall
+   ;; 2.2 only through trial and error and compare with total cost, each shopper find its optimized group of stalls
+;; go to the chosen stalls one by one,
+;; buy the produces on the shopping list and the stall offers
+;; update the shopping list and track the money spent
+;; go to the next stall and do the same, until all stalls are gone or the shoppinglist is finished
+;; ask the next shopper to repeat above actions
+;; stop the simulation when the average shopping list length = 0
 
 
 ;;widgets;;

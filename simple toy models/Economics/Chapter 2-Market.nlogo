@@ -56,116 +56,141 @@ to setup
 
       set stock n-of n-items-stocked fruit-and-veg           ;; give each trader some types of produce to sell
       set prices []                                          ;; set attribute prices an empty list
-      let mark-up (1 + random 30) / 100                      ;;
-      foreach stock [ x ->
+      let mark-up (1 + random 30) / 100                      ;; individual price raise by percentage
+      foreach stock [ x ->                                   ;; create individual price item by item and save in prices list
+
         set prices lput ((1 + mark-up) * (item (position x fruit-and-veg) fruit-and-veg-prices)) prices
       ]
     ]
   ]
 
-  create-shoppers n-shoppers [
-    set shape "person"
-    setxy random-pxcor random-pycor
-    set color yellow
-    set not-yet-visited traders
-    ; give each shopper a random list of produce to buy
-    set shopping-list n-of (1 + random 8) fruit-and-veg
+  create-shoppers n-shoppers [                               ;; create a number of shoppers
+    set shape "person"                                       ;; set person shape
+    setxy random-pxcor random-pycor                          ;; locate randomly
+    set color yellow                                         ;; set yellow color
+    set not-yet-visited traders                              ;; set not-yet-visited to be full trader agentset
+
+    set shopping-list n-of (1 + random 8) fruit-and-veg      ;; give each shopper a random list of produce to buy
   ]
 
-  set mean-items mean [ length shopping-list] of shoppers
+  set mean-items mean [ length shopping-list] of shoppers    ;; calc average length of shopping list
 
   reset-ticks
+
 end
 
 to go
 
   ; ask each shopper to scan for the cheapest sequence of stall to visit
   ; and then visit those stalls
-  ask shoppers [
-    let route search-before-buying
-    foreach route [ ?1 ->
-      let stall ?1
 
-      ; go to that stall
-      face stall
-      while [ patch-here != [patch-here] of stall ] [ forward 0.005 * walking-speed ]
+  ask shoppers [                                             ;; ask each shopper
+    let route search-before-buying                           ;; find the cheapest stalls to buy
+    foreach route [ r ->                                     ;; loop each cheapest stall
+      let stall r                                            ;; use local var stall represent each cheapest stall
 
-      ; remember that I have been to this stall, so I don't come again
+
+      face stall                                             ;; face that stall
+      while [ patch-here != [patch-here] of stall ]          ;; while shopper and stall are not on the same patch
+         [ forward 0.005 * walking-speed ]                   ;; make shopper walk distance of 0.005 * walking-speed
+                                                             ;; make sure not walk past
+
       set not-yet-visited not-yet-visited with [ self != stall ]
+                                                             ;; leave the visited stall out and save the rest in not-yet-visited
 
-      ; buy everything on my shopping-list that is for sale
-      ; at this stall
 
-      let purchases buy-from-stall shopping-list stall
 
-      foreach purchases [ ??1 ->
-        set spent spent + produce-price ??1 stall
-        ; delete the items that have been bought from the shopping list
-        set shopping-list remove ??1 shopping-list
+
+      let purchases buy-from-stall shopping-list stall       ;; buy everything on my shopping-list that is for sale at this stall
+
+      foreach purchases [ p ->                               ;; take each purchased item
+        set spent spent + produce-price p stall              ;; add such purchased item's price to spent
+        set shopping-list remove p shopping-list             ;; remove the item from the shopper's shopping list
       ]
 
-      ; when shopping is done, go home
-      ; (move to the edge of the grid)
-      if empty? shopping-list [ set ycor -16 ]
+      if empty? shopping-list [ set ycor -16 ]               ;; when shopping is done, move itself to the edge (home)
     ]
   ]
 
-  ; calculate the average number of items on the shopping lists
-  set mean-items mean [ length shopping-list] of shoppers
+
+  set mean-items mean [ length shopping-list] of shoppers    ;; calculate the average number of items on the shopping lists
 
   ; count the iterations
   tick
 
-  ; if no one has anything left to buy, stop
-  if mean-items = 0  [ stop ]
+
+  if mean-items = 0  [ stop ]                                ;; if no one has anything left to buy, stop
 
 end
 
-to-report search-before-buying
-  ; see how much it would cost to purchase using n-scans sequences
-  ; of traders' stalls and report the cheapest
+to-report search-before-buying                               ;; to find which group of stalls providing the cheapest cost in
+                                                             ;; total for all items of shopping list
+                                                             ;; we don't worry about which stall provide the cheapest prices
 
-  ; initialise cheapest with a very large number so every purchase will be cheaper
-  let cheapest-price 100000
-  let cheapest-route []
 
-  repeat n-scans [
-    let this-route []
-    let cost 0
-    let to-buy shopping-list
-    let visited []
-    while [ not empty? to-buy] [
+  let cheapest-price 100000                                  ;; initialise cheapest with a very large number
+                                                             ;; so every purchase will be cheaper
+  let cheapest-route []                                      ;; make empty list for cheapest stalls (traders)
+
+  repeat n-scans [                                           ;; loop a number of times
+
+                                                             ;; each loop initialize the containers ;;;;;;;;;;;;;;;;
+    let this-route []                                        ;; rout-chosen for this loop as empty list
+    let cost 0                                               ;; initialize cost 0
+    let to-buy shopping-list                                 ;; local var to-buy to be entire shopping list
+    let visited []                                           ;; local var visited as empty list
+
+                                                             ;; loop until the shopping-list is done ;;;;;;;;;;;;;;;;
+    while [ not empty? to-buy] [                             ;; loop while to-buy is not empty
+
       let stall one-of traders with [ not member? self visited ]
-      if stall = nobody [
+                                                             ;; choose one of the not-yet-visited stalls
+
+      if stall = nobody [                                    ;; if the stall is nobody, then it sells no items on the list
         show (word "Trying to buy " to-buy ", but no trader sells it.")
-        set shopping-list []
-        report []
+        set shopping-list []                                 ;; set shopping-list empty list ??
+        report []                                            ;; return or report empty list as cheapest stalls ??
       ]
-      set visited lput stall visited
-      let purchases buy-from-stall to-buy stall
-      if not empty? purchases [
-        set this-route lput stall this-route
-        foreach purchases [ ?1 ->
-          set cost cost + produce-price ?1 stall
-          ; delete the items that have been bought
-          set to-buy remove ?1 to-buy
+
+      set visited lput stall visited                         ;; put the current stall into visited list
+
+      let purchases buy-from-stall to-buy stall              ;; find all items can be bought from this stall  ??
+
+      if not empty? purchases [                              ;; if the stall does offer items on to-buy list
+        set this-route lput stall this-route                 ;; put this stall into this-route
+
+        foreach purchases [ p ->                             ;; loop each item can be purchased at this stall
+          set cost cost + produce-price p stall              ;; add the stall price for the item to the cost
+
+          set to-buy remove p to-buy                         ;; remove the item from the to-buy list
         ]
       ]
-    ]
-    if cost < cheapest-price [
-      set cheapest-price cost
-      set cheapest-route this-route
+    ]                                                        ;; when this while loop is done, a number of stalls chosen,
+                                                             ;; which together offer all items on the shopping list
+                                                             ;; cost is the prices of the shopping list item added together
+
+                                                             ;; keep track of the lowest cost and the cheapest route of stalls
+    if cost < cheapest-price [                               ;; by now, the shopping-list may or may not finished
+                                                             ;; cost is all added up
+                                                             ;; if cost < cheapest-price (initialized as 10000)
+      set cheapest-price cost                                ;; update cheapest-price with cost value
+      set cheapest-route this-route                          ;; update cheapest-route with this-route
     ]
   ]
-  report cheapest-route
+  report cheapest-route                                      ;; report the latest cheapest-route
 end
 
-to-report produce-price [ produce stall ]
+to-report produce-price [ produce stall ]                    ;; to get the price of an item from a stall
+
   report item (position produce [stock] of stall) [ prices ] of stall
+                                                             ;; find position of item in the stock of stall, then
+                                                             ;; find the price of the position in prices of the stall
 end
 
-to-report buy-from-stall [ what-to-buy stall ]
-  report filter [ ?1 -> member? ?1 [stock] of stall ] what-to-buy
+to-report buy-from-stall [ what-to-buy stall ]               ;; report the items list that the stall offer compared to what-to-buy list
+
+  report filter [ x -> member? x [stock] of stall ] what-to-buy
+
 end
 
 to run-experiment
