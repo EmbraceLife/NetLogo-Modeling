@@ -1,3 +1,6 @@
+;; created by 深度碎片
+;; coding process see https://github.com/EmbraceLife/NetLogo-Modeling/issues/6
+
 ;;Purpose;; illustrate basic features of NetLogo using a simple model of a fruit and vegetable market
 ;;Entities;; two types of agents: shoppers and traders.
 ;;Stochastic processes;;
@@ -236,8 +239,16 @@ to setup                                                                        
 
 end
 
+
+
 ;; How shoppers and traders interact in the world ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+
+  ask shoppers [
 ;; take one shopper to do mental shopping experiment ;;
+    let best-group-stalls search-best-stalls shopping-list                                    ;; verify 8: find the best-group-stalls through mental experiment
+
    ;; 1.0 carrying a shopping list, randomly choose a stall to check
    ;; 1.1 check a stall, if the trader has what on the shopping list, bought with the selling price, update the shopping list
    ;; 1.2 go to another stall, if the trader has what on the shopping list, bought with the selling price, update the shopping list
@@ -251,11 +262,40 @@ end
    ;; 2.2 each shopper buy whatever on the list and sold by the randomly met stall
    ;; 2.2 only through trial and error and compare with total cost, each shopper find its optimized group of stalls
 ;; go to the chosen stalls one by one,
+    let shopping-update-list shopping-list                                                     ;; verify 8: save shopping-list to update-list for update purposes
+
+    foreach best-group-stalls [ stall ->
 ;; buy the produces on the shopping list and the stall offers
+      let bought-produces buy-from-stall stall shopping-update-list                            ;; verify 8: get all produces from the stall wanted by shopper
 ;; update the shopping list and track the money spent
+      foreach bought-produces [ p ->
+
+        set shopping-update-list remove p shopping-update-list                                 ;; verify 8: update shopping list
+
+        let produce-price item ( position p [stocks] of stall ) [selling-prices] of stall      ;; verify 8: use produce position to find selling-price
+
+        set money-spent money-spent + produce-price                                            ;; verify 8: add up money-spent
+
+        if empty? shopping-update-list [ set y-cor -16 ]                                       ;; verify 8: move shopper to be bottom
+
+      ]
+
 ;; go to the next stall and do the same, until all stalls are gone or the shoppinglist is finished
+
+    ]
+  ]
 ;; ask the next shopper to repeat above actions
+
+
 ;; stop the simulation when the average shopping list length = 0
+  let avg-shopping-list-length mean length [shopping-list] of shoppers                         ;; verify 8: no way to testify so far as two functions are not available
+
+  if avg-shopping-list-length = 0 [ stop ]
+
+end
+
+;; I am build the framework for this part above, it is difficult to verify the code by running it at the moment without writing the two missing functions first. ;;;;;;;
+
 
 
 ;;widgets;;
@@ -323,7 +363,7 @@ num-traders
 num-traders
 1
 20
-7.0
+0.0
 1
 1
 NIL
@@ -338,7 +378,7 @@ num-stocks
 num-stocks
 1
 12
-5.0
+0.0
 1
 1
 NIL
@@ -353,7 +393,7 @@ num-shoppers
 num-shoppers
 1
 20
-9.0
+0.0
 1
 1
 NIL
